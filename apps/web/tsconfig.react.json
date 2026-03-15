@@ -1,0 +1,9 @@
+{
+  "extends": "@ygoma/tsconfig/tsconfig.react.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "paths": {
+      "~/*": ["./src/*"]
+    }
+  }
+}

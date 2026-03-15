@@ -1,0 +1,13 @@
+node_modules
+.turbo
+
+# env
+.env
+.env.*.local
+
+# runtime files
+run/
+*.db
+
+# OS
+.DS_Store
