@@ -7,8 +7,8 @@ export const Route = createFileRoute("/")({
 function Home() {
   return (
     <main>
-      <h1>ygoma</h1>
-      <p>Yu-Gi-Oh! tournament manager</p>
+      <h1>Yu-Gi-Oh! Morocco</h1>
+      <p>Work in progress :)</p>
     </main>
   );
 }
