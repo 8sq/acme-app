@@ -10,8 +10,8 @@ RUN apt-get update \
 
 # Create the dev user and have him sudo without password
 ENV USER=dev
-RUN userdel bun
-RUN useradd -mG sudo -s /bin/bash $USER \
+RUN userdel bun \
+    && useradd -mG sudo -s /bin/bash $USER \
     && echo "$USER ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$USER
 
 # Pre-create a workspace directory with the correct permissions

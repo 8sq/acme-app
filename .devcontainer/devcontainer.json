@@ -15,7 +15,10 @@
         "tamasfe.even-better-toml",
         "vitest.explorer",
         "vunguyentuan.vscode-postcss"
-      ]
+      ],
+      "settings": {
+        "search.useIgnoreFiles": true
+      }
     }
   }
 }
