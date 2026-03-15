@@ -1,10 +1,7 @@
 {
-  "extends": "../../tsconfig.json",
-  "include": ["**/*.ts", "**/*.tsx"],
-  "compilerOptions": {
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "paths": {
-      "~/*": ["./src/*"]
-    }
-  }
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.react.json" },
+    { "path": "./tsconfig.bun.json" }
+  ]
 }

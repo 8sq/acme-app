@@ -5,10 +5,12 @@
   "scripts": {
     "dev": "vite dev --host 0.0.0.0",
     "build": "vite build",
-    "start": "node .output/server/index.mjs"
+    "start": "node .output/server/index.mjs",
+    "lint": "tsc -b"
   },
   "devDependencies": {
     "@tanstack/react-router": "catalog:",
+    "@ygoma/tsconfig": "workspace:*",
     "@tanstack/react-start": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

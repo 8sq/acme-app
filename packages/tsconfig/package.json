@@ -1,0 +1,10 @@
+{
+  "name": "@ygoma/tsconfig",
+  "version": "0.1.0",
+  "private": true,
+  "peerDependencies": {
+    "@types/bun": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}

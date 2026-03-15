@@ -11,7 +11,11 @@
     "drizzle-orm": "catalog:",
     "hono": "catalog:"
   },
+  "scripts": {
+    "lint": "tsc --noEmit"
+  },
   "devDependencies": {
+    "@ygoma/tsconfig": "workspace:*",
     "drizzle-kit": "catalog:",
     "typescript": "catalog:"
   }
