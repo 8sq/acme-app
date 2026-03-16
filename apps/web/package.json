@@ -17,6 +17,7 @@
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "@ygoma/api": "workspace:*",
+    "@ygoma/oxlint-config": "workspace:*",
     "@ygoma/tsconfig": "workspace:*",
     "nitro": "catalog:",
     "react": "catalog:",

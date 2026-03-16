@@ -19,6 +19,7 @@
   "devDependencies": {
     "@types/better-sqlite3": "catalog:",
     "@types/node": "catalog:",
+    "@ygoma/oxlint-config": "workspace:*",
     "@ygoma/tsconfig": "workspace:*",
     "drizzle-kit": "catalog:",
     "typescript": "catalog:"
