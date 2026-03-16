@@ -8,6 +8,7 @@
     "lint": "oxfmt --check *.* && turbo lint",
     "lint:fix": "oxlint -c .oxlintrc.json --fix && oxfmt",
     "build": "turbo build",
+    "build:preview": "turbo build:preview",
     "dev": "turbo dev"
   },
   "devDependencies": {
