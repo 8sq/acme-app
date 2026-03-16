@@ -9,7 +9,7 @@ export default defineEventHandler((event) => {
     "";
 
   if (!credentials) {
-    return null;
+    return;
   }
 
   const allowedTokens = credentials.split(";").filter(Boolean);
@@ -18,7 +18,7 @@ export default defineEventHandler((event) => {
   const token = match?.[1] ?? "";
 
   if (token && allowedTokens.includes(token)) {
-    return null;
+    return;
   }
 
   event.res.status = 401;
