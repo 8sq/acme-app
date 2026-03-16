@@ -1,12 +1,6 @@
 import { defineEventHandler } from "nitro/h3";
 import app from "@ygoma/api";
-
-interface NitroEventContext {
-  // Only available in Cloudflare Workers environment
-  cloudflare?: {
-    env: Record<string, unknown>;
-  };
-}
+import type { NitroEventContext } from "../nitro-context";
 
 export default defineEventHandler((event) => {
   const context = event.context as NitroEventContext;

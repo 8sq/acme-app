@@ -1,6 +1,10 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "ignorePatterns": ["**/routeTree.gen.ts", "**/.turbo/", "**/node_modules/"],
+  "env": {
+    "node": true,
+    "browser": true
+  },
   "plugins": ["react", "unicorn", "typescript", "import"],
   "categories": {
     "correctness": "error",
@@ -16,6 +20,7 @@
     "no-unused-vars": "off",
 
     "eslint-plugin-import/no-default-export": "off",
+    "eslint-plugin-import/no-relative-parent-imports": "off",
     "import/no-anonymous-default-export": "error",
 
     "eslint-plugin-react/jsx-filename-extension": [
