@@ -1,4 +1,4 @@
-FROM node:24
+FROM node:24.14.0
 
 # Install basic dev tools and setup locale
 RUN apt update -y \
