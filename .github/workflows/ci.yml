@@ -41,7 +41,10 @@ jobs:
           workingDirectory: apps/web
           apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=${{ env.STAGING_PROJECT_NAME }} --branch=${{ github.head_ref || github.ref_name }}
+          command: >-
+            pages deploy dist
+            --project-name=${{ env.STAGING_PROJECT_NAME }}
+            --branch=${{ github.head_ref || github.ref_name }}
 
       - name: Comment preview URL
         if: >-
