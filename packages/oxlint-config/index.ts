@@ -14,7 +14,9 @@ export default defineConfig({
   rules: {
     "eslint/arrow-body-style": "off",
     "eslint/id-length": "error",
-    "no-unused-vars": "off",
+    "eslint/no-unused-vars": "off", // ts checks this
+    "eslint/no-undef": "off", // ts checks this
+    "eslint/no-console": "off", // will be stripped on build
 
     "eslint-plugin-import/no-default-export": "off",
     "eslint-plugin-import/no-relative-parent-imports": "off",
@@ -34,9 +36,15 @@ export default defineConfig({
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/prefer-readonly-parameter-types": "off",
+    "@typescript-eslint/promise-function-async": [
+      "error",
+      { checkArrowFunctions: false },
+    ],
   },
   options: {
     maxWarnings: 0,
+    typeAware: true,
   },
   overrides: [
     {
