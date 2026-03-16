@@ -1,6 +1,10 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "ignorePatterns": ["**/routeTree.gen.ts", "**/.turbo/", "**/node_modules/"],
+  "env": {
+    "node": true,
+    "browser": true
+  },
   "plugins": ["react", "unicorn", "typescript", "import"],
   "categories": {
     "correctness": "error",
@@ -23,14 +27,14 @@
     "import/no-anonymous-default-export": "error",
 
     // React
-    "eslint-plugin-react/jsx-filename-extension": [
-      "error",
-      { "extensions": [".tsx"] }
-    ],
     "eslint-plugin-react/no-multi-comp": ["warn", { "ignoreStateless": true }],
     "eslint-plugin-react/only-export-components": "error",
     "eslint-plugin-react/react-in-jsx-scope": "off",
     "react/only-export-components": "warn",
+    "eslint-plugin-react/jsx-filename-extension": [
+      "error",
+      { "extensions": [".tsx"] }
+    ],
 
     // Typescript
     "@typescript-eslint/array-type": "error",
@@ -39,6 +43,7 @@
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/prefer-readonly-parameter-types": "off",
+    "@typescript-eslint/consistent-return": "off",
     "@typescript-eslint/promise-function-async": [
       "error",
       { "checkArrowFunctions": false }
