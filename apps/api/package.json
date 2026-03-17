@@ -16,13 +16,11 @@
   },
   "dependencies": {
     "@libsql/client": "catalog:",
-    "better-sqlite3": "catalog:",
     "drizzle-orm": "catalog:",
     "hono": "catalog:"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "catalog:",
-    "@types/better-sqlite3": "catalog:",
     "@types/node": "catalog:",
     "@ygoma/tsconfig": "workspace:*",
     "drizzle-kit": "catalog:",

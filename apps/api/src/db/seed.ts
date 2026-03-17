@@ -12,7 +12,7 @@ db.insert(schema.posts)
     },
     {
       title: "Database Abstraction",
-      content: "How we support D1, libsql, and better-sqlite3.",
+      content: "How we support D1 and libsql.",
     },
   ])
   .run();

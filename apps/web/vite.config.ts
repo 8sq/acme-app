@@ -15,7 +15,7 @@ export default defineConfig({
       errorHandler: "./server/error.ts",
       rolldownConfig: {
         // Node-only DB drivers — these need node:http, which breaks in CF.
-        external: [/^drizzle-orm\/(libsql|better-sqlite3)$/],
+        external: [/^drizzle-orm\/libsql$/],
       },
     }),
   ],
