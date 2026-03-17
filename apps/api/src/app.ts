@@ -12,4 +12,16 @@ export default app
     const db = context.var.db;
     const allPosts = await db.select().from(posts);
     return context.json(allPosts);
+  })
+  .post("/posts", async (context) => {
+    const body = await context.req.json<{ title: string; content: string }>();
+    const db = context.var.db;
+    const result = await db
+      .insert(posts)
+      .values({
+        title: body.title,
+        content: body.content,
+      })
+      .returning();
+    return context.json(result[0], 201);
   });
