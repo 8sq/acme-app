@@ -1,10 +1,10 @@
 name = "ygoma"
 compatibility_date = "2025-04-01"
 pages_build_output_dir = "dist"
-migrations_dir = "../api/drizzle"
 
 # Production / preprod (main branch deploys)
 [[d1_databases]]
 binding = "DB"
 database_name = "ygoma-preprod"
 database_id = "PREPROD_D1_ID"
+migrations_dir = "../api/drizzle"
