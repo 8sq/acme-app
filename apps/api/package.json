@@ -10,6 +10,7 @@
   },
   "scripts": {
     "lint": "oxfmt --check && oxlint -c ../../.oxlintrc.json && tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx src/db/seed.ts"
   },
