@@ -9,7 +9,7 @@ export async function resolveSqlite(url?: string): Promise<Database> {
     resolve(dirname(fileURLToPath(import.meta.url)), "../..", "sqlite.db");
 
   // Connect to a remote SQLite database
-  if (databaseUrl.startsWith("file:")) {
+  if (!databaseUrl.startsWith("file:")) {
     const { drizzle } = await import("drizzle-orm/libsql");
     return drizzle(databaseUrl, { schema });
   }

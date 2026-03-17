@@ -6,7 +6,7 @@ on:
 
 jobs:
   cleanup:
-    name: Delete preview D1
+    name: Preview Cleanup
     runs-on: ubuntu-latest
     environment: staging
     env:
