@@ -21,6 +21,7 @@
     "eslint/no-undef": "off",
     "eslint/no-console": "off",
     "eslint/no-undefined": "off",
+    "eslint/no-void": "off",
 
     // Import
     "eslint-plugin-import/no-default-export": "off",
