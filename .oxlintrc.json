@@ -20,6 +20,7 @@
     "eslint/no-unused-vars": "off",
     "eslint/no-undef": "off",
     "eslint/no-console": "off",
+    "eslint/no-undefined": "off",
 
     // Import
     "eslint-plugin-import/no-default-export": "off",

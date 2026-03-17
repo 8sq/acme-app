@@ -3,20 +3,19 @@ packages:
   - "apps/*"
 
 onlyBuiltDependencies:
-  - better-sqlite3
   - esbuild
   - sharp
   - workerd
 
 catalog:
+  "@cloudflare/workers-types": 4.20260316.1
+  "@libsql/client": 0.17.0
   "@tanstack/react-router": 1.167.3
   "@tanstack/react-start": 1.166.14
-  "@types/better-sqlite3": 7.6.13
   "@types/node": 24.12.0
   "@types/react": 19.2.14
   "@types/react-dom": 19.2.3
   "@vitejs/plugin-react": 6.0.1
-  better-sqlite3: 12.8.0
   drizzle-kit: 0.31.9
   drizzle-orm: 0.45.1
   hono: 4.12.8
@@ -27,6 +26,7 @@ catalog:
   oxlint-tsgolint: 0.17.0
   react: 19.2.4
   react-dom: 19.2.4
+  tsx: 4.21.0
   turbo: 2.8.17
   typescript: 5.9.3
   vite: 8.0.0

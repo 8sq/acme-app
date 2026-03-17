@@ -1,0 +1,90 @@
+name: Checks & Deploy Preview
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  preview:
+    name: Checks & Deploy Preview
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event_name == 'push' && 'preprod' || 'preview' }}
+      url: ${{ steps.deploy.outputs.pages-deployment-alias-url }}
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      TURBO_TELEMETRY_DISABLED: 1
+      STAGING_PROJECT_NAME: ygoma-staging
+      PREPROD_DB_NAME: ygoma-preprod
+      PREVIEW_DB_PREFIX: ygoma-preview
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Set branch slug
+        id: branch
+        run: |
+          SLUG="${{ github.head_ref || github.ref_name }}"
+          SLUG="${SLUG//\//-}"
+          echo "slug=$SLUG" >> "$GITHUB_OUTPUT"
+
+          if [ "${{ github.ref_name }}" = "main" ] && [ "${{ github.event_name }}" = "push" ]; then
+            echo "db_name=${{ env.PREPROD_DB_NAME }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "db_name=${{ env.PREVIEW_DB_PREFIX }}-${SLUG}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup D1 database
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != ''
+        id: d1
+        working-directory: apps/web
+        env:
+          DB_NAME: ${{ steps.branch.outputs.db_name }}
+        run: |
+          EXISTING=$(pnpm wrangler d1 list --json | jq -r ".[] | select(.name == \"$DB_NAME\") | .uuid")
+          if [ -n "$EXISTING" ]; then
+            DB_ID="$EXISTING"
+          else
+            RESULT=$(pnpm wrangler d1 create "$DB_NAME")
+            DB_ID=$(echo "$RESULT" | grep 'database_id' | sed 's/.*= "\(.*\)"/\1/')
+            NEW_DB=true
+          fi
+
+          echo "Updating wrangler.toml with database $DB_NAME (ID: $DB_ID)"
+          sed -i "s/^database_name = .*/database_name = \"$DB_NAME\"/" wrangler.toml
+          sed -i "s/^database_id = .*/database_id = \"$DB_ID\"/" wrangler.toml
+
+          pnpm wrangler d1 migrations apply "$DB_NAME" --remote
+
+          if [ "${NEW_DB:-}" = "true" ]; then
+            pnpm wrangler d1 execute "$DB_NAME" --remote --file=../api/seed.sql
+          fi
+
+      - name: Build
+        working-directory: apps/web
+        run: pnpm build:preview
+
+      - name: Deploy
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != ''
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          workingDirectory: apps/web
+          apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
+          command: >-
+            pages deploy dist
+            --project-name=${{ env.STAGING_PROJECT_NAME }}
+            --branch=${{ github.head_ref || github.ref_name }}

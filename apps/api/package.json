@@ -5,22 +5,26 @@
   "type": "module",
   "exports": {
     ".": "./src/app.ts",
-    "./db": "./src/db/index.ts",
+    "./db/types": "./src/db/types.ts",
     "./db/schema": "./src/db/schema.ts"
   },
   "scripts": {
-    "lint": "oxfmt --check && oxlint -c ../../.oxlintrc.json && tsc --noEmit"
+    "lint": "oxfmt --check && oxlint -c ../../.oxlintrc.json && tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx src/db/seed.ts"
   },
   "dependencies": {
-    "better-sqlite3": "catalog:",
+    "@libsql/client": "catalog:",
     "drizzle-orm": "catalog:",
     "hono": "catalog:"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "catalog:",
+    "@cloudflare/workers-types": "catalog:",
     "@types/node": "catalog:",
     "@ygoma/tsconfig": "workspace:*",
     "drizzle-kit": "catalog:",
+    "tsx": "catalog:",
     "typescript": "catalog:"
   }
 }
