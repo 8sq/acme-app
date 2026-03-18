@@ -20,7 +20,7 @@ export async function resolveDatabase(
   return resolveSqlite(process.env.DATABASE_URL);
 }
 
-export let cachedDb: Database | null = null;
+let cachedDb: Database | null = null;
 export const dbMiddleware = createMiddleware<AppEnv>(async (context, next) => {
   cachedDb ??= await resolveDatabase(context.env);
   context.set("db", cachedDb);
