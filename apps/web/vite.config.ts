@@ -17,10 +17,6 @@ export default defineConfig({
     nitro({
       serverDir: "./server",
       errorHandler: "./server/error.ts",
-      rolldownConfig: {
-        // Node-only — these use APIs that break in CF Workers.
-        external: [/^drizzle-orm\/libsql$/, /^@sentry\/node/],
-      },
     }),
     sentryVitePlugin({
       org: process.env.SENTRY_ORG,
