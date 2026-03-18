@@ -15,6 +15,9 @@ catalogs:
     '@sentry/tanstackstart-react':
       specifier: 10.44.0
       version: 10.44.0
+    '@sentry/vite-plugin':
+      specifier: 5.1.1
+      version: 5.1.1
     '@tanstack/react-router':
       specifier: 1.167.3
       version: 1.167.3
@@ -135,6 +138,9 @@ importers:
       '@sentry/tanstackstart-react':
         specifier: 'catalog:'
         version: 10.44.0(react@19.2.4)(rollup@4.59.0)
+      '@sentry/vite-plugin':
+        specifier: 'catalog:'
+        version: 5.1.1(rollup@4.59.0)
       '@tanstack/react-router':
         specifier: 'catalog:'
         version: 1.167.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
