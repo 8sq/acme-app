@@ -7,7 +7,7 @@ pages_build_output_dir = "dist"
 ip = "0.0.0.0"
 
 # Default dev/local D1 database config.
-# CI overwrites database_name/database_id for production/preprod (main branch) deploys.
+# CI overwrites database_name/database_id for deploys.
 [[d1_databases]]
 binding = "DB"
 database_name = "dev"
