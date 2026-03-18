@@ -18,8 +18,8 @@ export default defineConfig({
       serverDir: "./server",
       errorHandler: "./server/error.ts",
       rolldownConfig: {
-        // Node-only DB drivers — these need node:http, which breaks in CF.
-        external: [/^drizzle-orm\/libsql$/],
+        // Node-only — these use APIs that break in CF Workers.
+        external: [/^drizzle-orm\/libsql$/, /^@sentry\/node/],
       },
     }),
     sentryVitePlugin({
