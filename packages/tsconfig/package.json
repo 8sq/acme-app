@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "lint": "oxfmt --check"
+    "lint": "oxfmt -c ../../.oxfmtrc.json --check"
   },
   "peerDependencies": {
     "@types/node": "catalog:",
