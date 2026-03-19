@@ -14,6 +14,7 @@ export function initSentryClient(router: ReturnType<typeof getRouter>): void {
 
   Sentry.init({
     dsn: VITE_SENTRY_DSN,
+    tunnel: "/api/sentry",
     environment: VITE_SENTRY_ENVIRONMENT ?? import.meta.env.MODE,
     release: VITE_SENTRY_RELEASE,
     dist: VITE_SENTRY_DIST,
