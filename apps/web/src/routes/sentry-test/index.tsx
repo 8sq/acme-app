@@ -17,6 +17,11 @@ function handleCaptureMessage() {
   Sentry.captureMessage("Manual test message from /sentry-test");
 }
 
+async function handleApiError() {
+  const response = await fetch("/api/v1/sentry-test");
+  console.log("API error response:", response.status, await response.text());
+}
+
 function handleBreadcrumbError() {
   Sentry.addBreadcrumb({
     message: "User clicked breadcrumb test",
@@ -47,6 +52,11 @@ function SentryTest() {
         <li>
           <button type="button" onClick={handleCaptureMessage}>
             Send captureMessage
+          </button>
+        </li>
+        <li>
+          <button type="button" onClick={() => void handleApiError()}>
+            Trigger API error (GET /api/v1/sentry-test)
           </button>
         </li>
         <li>

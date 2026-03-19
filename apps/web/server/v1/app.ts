@@ -12,6 +12,9 @@ export default app
     const allPosts = await db.select().from(posts);
     return context.json(allPosts);
   })
+  .get("/sentry-test", () => {
+    throw new Error("Sentry backend test error");
+  })
   .post("/posts", async (context) => {
     const body = await context.req.json<{ title: string; content: string }>();
     const db = context.var.db;

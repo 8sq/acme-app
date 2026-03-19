@@ -12,6 +12,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "src/**/*.{ts,tsx}",
+        "server/**/*.ts",
+        "drizzle/**/*.{json,sql}",
         "*.json",
         ".gitignore",
         "$TURBO_ROOT$/.gitignore",
