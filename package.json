@@ -9,8 +9,8 @@
   "type": "module",
   "scripts": {
     "prepare": "husky",
-    "lint": "oxfmt --check *.* && turbo lint",
-    "lint:fix": "oxlint -c .oxlintrc.json --fix && oxfmt",
+    "lint": "oxfmt -c .oxfmtrc.json --check *.* && turbo lint",
+    "lint:fix": "oxlint -c .oxlintrc.json --fix && oxfmt -c .oxfmtrc.json",
     "build": "turbo build",
     "dev": "turbo dev",
     "db:generate": "bun run --filter web db:generate",
