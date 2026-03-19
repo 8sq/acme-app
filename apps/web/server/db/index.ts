@@ -3,7 +3,9 @@ import { createMiddleware } from "hono/factory";
 import type { AppEnv, Database } from "./types";
 import * as schema from "./schema";
 
-async function resolveDatabase(env: AppEnv["Bindings"]): Promise<Database> {
+export async function resolveDatabase(
+  env: AppEnv["Bindings"],
+): Promise<Database> {
   // On Cloudflare Workers/Pages without a D1 binding, there's no way to
   // connect to a database — SQLite/libsql require a Node.js environment.
   if (getRuntimeKey() === "workerd") {
