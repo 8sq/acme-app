@@ -6,7 +6,7 @@ import { sentryVitePlugin } from "@sentry/vite-plugin";
 
 export default defineConfig({
   build: {
-    sourcemap: "hidden",
+    sourcemap: process.env.SENTRY_AUTH_TOKEN ? "hidden" : false,
   },
   resolve: {
     tsconfigPaths: true,

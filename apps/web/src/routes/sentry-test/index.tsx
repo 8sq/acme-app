@@ -10,7 +10,7 @@ function handleClickError() {
 }
 
 function handleFetchError() {
-  fetch("/api/does-not-exist").catch(() => null);
+  void fetch("/api/does-not-exist");
 }
 
 function handleUnhandledRejection() {
