@@ -11,6 +11,10 @@ export type Database = BaseSQLiteDatabase<
 export interface CfBindings {
   DB?: D1Database;
   BASIC_AUTH_CREDENTIALS?: string;
+  SENTRY_DSN?: string;
+  SENTRY_ENVIRONMENT?: string;
+  SENTRY_RELEASE?: string;
+  SENTRY_DIST?: string;
 }
 
 export interface AppEnv {
