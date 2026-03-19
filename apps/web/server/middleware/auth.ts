@@ -1,6 +1,10 @@
 import { defineEventHandler } from "nitro/h3";
 
 export default defineEventHandler((event) => {
+  if (event.url.pathname === "/api/health") {
+    return;
+  }
+
   const cfValue = event.runtime?.cloudflare?.env.BASIC_AUTH_CREDENTIALS;
   const credentials =
     (typeof cfValue === "string" ? cfValue : null) ??
