@@ -5,5 +5,8 @@ import type { AppEnv } from "../db/types";
 export const sentryOnError: ErrorHandler<AppEnv> = (error, context) => {
   const eventId = Sentry.captureException(error);
 
-  return context.json({ error: error.message, sentryEventId: eventId }, 500);
+  // Output a generic error message, as to not leak any sensitive information.
+  // The event ID can be used to look up the error in Sentry.
+  const message = { error: "Internal Server Error", sentryEventId: eventId };
+  return context.json(message, 500);
 };
