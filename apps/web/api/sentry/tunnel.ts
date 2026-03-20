@@ -74,27 +74,33 @@ function validateOrigin(origin: string | undefined, host: string): void {
   throw new HTTPException(403);
 }
 
-// Read one chunk from the stream into the buffer. Returns the new offset.
-// Recurses until the buffer is full, the stream ends, or a chunk exceeds
+// Read chunks from the stream into the buffer. Returns the final offset.
+// Loops until the buffer is full, the stream ends, or a chunk exceeds
 // the remaining space (in which case only the fitting portion is copied).
 async function readStreamChunk(
   reader: ReadableStreamDefaultReader<Uint8Array>,
   buffer: Uint8Array,
   offset: number,
 ): Promise<number> {
-  if (offset >= buffer.length) return offset;
+  let pos = offset;
 
-  const { done, value } = await reader.read();
-  if (done) return offset;
+  while (pos < buffer.length) {
+    // chunks must be read sequentially
+    // eslint-disable-next-line no-await-in-loop
+    const { done, value } = await reader.read();
+    if (done) break;
 
-  const remaining = buffer.length - offset;
-  if (value.length > remaining) {
-    buffer.set(value.subarray(0, remaining), offset);
-    return buffer.length;
+    const remaining = buffer.length - pos;
+    if (value.length > remaining) {
+      buffer.set(value.subarray(0, remaining), pos);
+      return buffer.length;
+    }
+
+    buffer.set(value, pos);
+    pos += value.length;
   }
 
-  buffer.set(value, offset);
-  return readStreamChunk(reader, buffer, offset + value.length);
+  return pos;
 }
 
 // Read and validate the raw envelope body. Requires Content-Length, streams
