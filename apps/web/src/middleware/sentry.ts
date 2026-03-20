@@ -34,6 +34,7 @@ export const sentryMiddleware = createMiddleware({ type: "function" })
     } catch (error) {
       try {
         Sentry.captureException(error);
+        await Sentry.flush(2000);
       } catch {
         // Sentry SDK not initialized (no DSN configured)
       }
