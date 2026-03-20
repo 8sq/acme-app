@@ -40,6 +40,9 @@ function SentryTest() {
           <Link to="/sentry-test/error">Route that throws on render</Link>
         </li>
         <li>
+          <Link to="/sentry-test/ssr-error">SSR loader error</Link>
+        </li>
+        <li>
           <button type="button" onClick={handleClickError}>
             Throw error on click
           </button>
