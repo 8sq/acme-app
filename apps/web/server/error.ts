@@ -3,10 +3,15 @@ import type { NitroErrorHandler } from "nitro/types";
 
 const errorHandler: NitroErrorHandler = (error) => {
   const cause = error.cause ?? error;
-  console.error(
-    cause instanceof Error ? (cause.stack ?? cause.message) : cause,
-  );
-  Sentry.captureException(cause);
+  const message =
+    cause instanceof Error ? (cause.stack ?? cause.message) : cause;
+  console.error(message);
+
+  try {
+    Sentry.captureException(cause);
+  } catch {
+    // Sentry SDK not initialized or unavailable
+  }
 };
 
 export default errorHandler;

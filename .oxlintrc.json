@@ -22,6 +22,7 @@
     "eslint/no-console": "off",
     "eslint/no-undefined": "off",
     "eslint/no-void": "off",
+    "eslint/no-inline-comments": "off",
 
     // Import
     "eslint-plugin-import/no-default-export": "off",

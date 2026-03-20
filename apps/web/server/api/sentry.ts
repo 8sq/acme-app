@@ -84,10 +84,17 @@ export default defineEventHandler(async (event) => {
     throw HTTPError.status(404);
   }
 
+  // Reject obviously oversized payloads before reading the body
+  const MAX_BODY_BYTES = 1024 * 1024; // 1 MB
+  const contentLength = Number(event.req.headers.get("content-length"));
+  if (contentLength > MAX_BODY_BYTES) {
+    throw HTTPError.status(413);
+  }
+
   // Read the raw envelope as bytes to preserve binary payloads (attachments)
   const body = new Uint8Array(await event.req.arrayBuffer());
-  if (body.length === 0) {
-    throw HTTPError.status(400);
+  if (body.length === 0 || body.length > MAX_BODY_BYTES) {
+    throw HTTPError.status(body.length === 0 ? 400 : 413);
   }
 
   // Extract the DSN the client claims to use

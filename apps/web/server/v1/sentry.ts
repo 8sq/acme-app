@@ -1,12 +1,19 @@
 import * as Sentry from "@sentry/cloudflare";
 import type { ErrorHandler } from "hono";
+import { HTTPException } from "hono/http-exception";
 import type { AppEnv } from "../db/types";
 
 export const sentryOnError: ErrorHandler<AppEnv> = (error, context) => {
-  const eventId = Sentry.captureException(error);
+  if (error instanceof HTTPException) {
+    if (error.status >= 500) {
+      Sentry.captureException(error);
+    }
+    return error.getResponse();
+  }
 
-  // Output a generic error message, as to not leak any sensitive information.
-  // The event ID can be used to look up the error in Sentry.
-  const message = { error: "Internal Server Error", sentryEventId: eventId };
-  return context.json(message, 500);
+  const eventId = Sentry.captureException(error);
+  return context.json(
+    { error: "Internal Server Error", sentryEventId: eventId },
+    500,
+  );
 };
