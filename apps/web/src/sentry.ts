@@ -2,6 +2,15 @@ import * as Sentry from "@sentry/react";
 import type { getRouter } from "./router";
 import { CAPTURED } from "./middleware/sentry";
 
+function envToBool(value: string | undefined): boolean {
+  if (!value) return false;
+  const lower = value.toLowerCase().trim();
+  if (lower === "false" || lower === "no" || lower === "off") return false;
+  const num = Number(lower);
+  if (!Number.isNaN(num)) return num !== 0;
+  return true;
+}
+
 export function initSentryClient(router: ReturnType<typeof getRouter>): void {
   if (router.isServer) return;
 
@@ -11,7 +20,7 @@ export function initSentryClient(router: ReturnType<typeof getRouter>): void {
     VITE_SENTRY_RELEASE,
     VITE_SENTRY_DIST,
   } = import.meta.env;
-  if (!VITE_SENTRY_ENABLED) return;
+  if (!envToBool(VITE_SENTRY_ENABLED)) return;
 
   Sentry.init({
     dsn: "https://reporter@errors.internal/0",
