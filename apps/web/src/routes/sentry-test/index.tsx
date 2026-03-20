@@ -1,5 +1,10 @@
 import * as Sentry from "@sentry/react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
+
+const throwFormActionError = createServerFn({ method: "POST" }).handler(() => {
+  throw new Error("Sentry test: form action error");
+});
 
 export const Route = createFileRoute("/sentry-test/")({
   component: SentryTest,
@@ -66,6 +71,11 @@ function SentryTest() {
           <button type="button" onClick={handleBreadcrumbError}>
             Error with breadcrumbs
           </button>
+        </li>
+        <li>
+          <form method="post" action={throwFormActionError.url}>
+            <button type="submit">Form action error (no JS needed)</button>
+          </form>
         </li>
       </ul>
     </main>
