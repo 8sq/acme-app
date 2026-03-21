@@ -6,7 +6,7 @@
     "lint": "oxfmt -c ../../.oxfmtrc.json --check"
   },
   "peerDependencies": {
-    "@types/node": "catalog:",
+    "bun-types": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"
   }
