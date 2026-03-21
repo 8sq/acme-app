@@ -6,7 +6,7 @@ on:
 
 jobs:
   cleanup:
-    name: Cleanup
+    name: Preview Cleanup
     runs-on: ubuntu-latest
     environment: preview
     env:
