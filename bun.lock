@@ -32,6 +32,7 @@
         "@types/react-dom": "catalog:",
         "@vitejs/plugin-react": "catalog:",
         "@ygoma/tsconfig": "workspace:*",
+        "bun-types": "catalog:",
         "drizzle-kit": "catalog:",
         "nitro": "catalog:",
         "react": "catalog:",
@@ -45,10 +46,8 @@
     "packages/tsconfig": {
       "name": "@ygoma/tsconfig",
       "version": "0.1.0",
-      "dependencies": {
-        "bun-types": "catalog:",
-      },
       "peerDependencies": {
+        "bun-types": "catalog:",
         "typescript": "catalog:",
         "vite": "catalog:",
       },
