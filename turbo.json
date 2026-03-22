@@ -17,6 +17,7 @@
         "$TURBO_DEFAULT$",
         "{src,web,api,server,db}/**/*.{ts,tsx,css}",
         "db/migrations/**/*.{json,sql}",
+        ".storybook/**",
         "*.json",
         ".gitignore",
         "$TURBO_ROOT$/.gitignore",
@@ -31,6 +32,7 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "{src,web,api,server,db}/**/*.{ts,tsx,css}",
+        ".storybook/**",
         "vite.config.ts",
         "tsconfig.json",
         "tsconfig.*.json",
@@ -45,6 +47,7 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "{src,web,api,server,db}/**/*.{ts,tsx,css}",
+        ".storybook/**",
         "vite.config.ts",
         "tsconfig.json",
         "tsconfig.*.json",
