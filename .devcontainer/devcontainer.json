@@ -7,7 +7,14 @@
   "remoteUser": "dev",
   "containerUser": "dev",
   "service": "dev",
-  "workspaceFolder": "/workspace",
+  "workspaceFolder": "${localWorkspaceFolder}",
+  "mounts": [
+    {
+      "source": "${localWorkspaceFolder}",
+      "target": "${localWorkspaceFolder}",
+      "type": "bind"
+    }
+  ],
   "customizations": {
     "vscode": {
       "extensions": [

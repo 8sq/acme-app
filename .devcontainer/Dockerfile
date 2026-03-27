@@ -13,10 +13,6 @@ RUN userdel bun \
     && useradd -mG sudo -s /bin/bash $USER \
     && echo "$USER ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$USER
 
-# Pre-create a workspace directory with the correct permissions
-RUN mkdir /workspace && chown $USER:$USER /workspace
-WORKDIR /workspace
-
 # Switch to default user
 USER $USER
 
