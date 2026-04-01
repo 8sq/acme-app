@@ -27,10 +27,12 @@ find "$root" -type f \
   -not -name 'init.sh' \
   -print0 |
 while IFS= read -r -d '' file; do
-  if file --brief --mime "$file" | grep -q 'text/'; then
-    # perl instead of sed -i for macOS/BSD portability
-    perl -pi -e "s/\@acme/\@$slug/g; s/acme/$slug/g" "$file"
+  # Skip binary files
+  if file --brief --mime "$file" | grep -q 'charset=binary'; then
+    continue
   fi
+  # perl instead of sed -i for macOS/BSD portability
+  perl -pi -e "s/\@acme/\@$slug/g; s/acme/$slug/g" "$file"
 done
 
 echo "Replaced @acme → @$slug and acme → $slug"
