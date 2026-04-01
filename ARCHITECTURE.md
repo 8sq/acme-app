@@ -149,11 +149,12 @@ All deployment and Sentry steps are skipped when their secrets are absent.
 
 ## Customizing
 
-All instances of `@acme` and `acme` are placeholders. An init script
-is planned; for now, replace them manually in:
+All instances of `@acme` and `acme` are placeholders. Run the init
+script to replace them:
 
-- `package.json` (root + all packages)
-- `tsconfig.*.json` extends
-- `wrangler.json`
-- `.devcontainer/`
-- `.github/workflows/`
+```
+./init.sh <project-slug>
+```
+
+The script scans all text files, replaces both forms, regenerates
+`bun.lock`, then deletes itself.
