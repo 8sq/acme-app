@@ -28,7 +28,8 @@ find "$root" -type f \
   -print0 |
 while IFS= read -r -d '' file; do
   if file --brief --mime "$file" | grep -q 'text/'; then
-    sed -i "s/@acme/@$slug/g; s/acme/$slug/g" "$file"
+    # perl instead of sed -i for macOS/BSD portability
+    perl -pi -e "s/\@acme/\@$slug/g; s/acme/$slug/g" "$file"
   fi
 done
 
