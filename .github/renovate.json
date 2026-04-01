@@ -14,7 +14,7 @@
     {
       "description": "Allow automerge for minor and patch updates",
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
-      "minimumReleaseAge": "1 day",
+      "minimumReleaseAge": "2 days",
       "automerge": true
     }
   ]
