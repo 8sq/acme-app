@@ -6,18 +6,27 @@ Drizzle ORM, and Nitro. Deploys to Cloudflare Pages or Docker.
 ## Getting Started
 
 ```sh
-# 1. Clone and rename
 git clone <repo-url> my-project && cd my-project
+
+# ...you probably want to open the project in a dev container at this point...
+
 ./init.sh my-project   # replaces @acme/acme placeholders
 
-# 2. Install and run
 bun install
 bun dev
 ```
 
 The app runs at `http://localhost:3000` with the API at `/api/*`.
 
-A devcontainer config is included for VS Code / GitHub Codespaces.
+## Dev Container
+
+The devcontainer is recommended for a consistent environment with Bun,
+Playwright, and passwordless sudo pre-configured. Open the Project in VS Code
+or GitHub Codespaces and it will prompt you to reopen in the container.
+
+To add personal setup (extra tools, shell config, etc.), create
+`.devcontainer/user/build.sh` — it runs at image build time and
+is gitignored.
 
 ## Scripts
 
