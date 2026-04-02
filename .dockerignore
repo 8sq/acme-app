@@ -1,0 +1,32 @@
+node_modules
+.bun
+.turbo
+.git
+.github
+.devcontainer
+.wrangler
+.vscode
+.w
+.vibe
+.husky
+
+# env
+.env
+.env.*.local
+
+# runtime artifacts
+*.db
+run/
+coverage/
+
+# build artifacts (copied from build stage instead)
+packages/app/.output
+
+# dev/test/lint configs
+.oxfmtrc.json
+.oxlintrc.json
+Dockerfile
+compose.yaml
+
+# OS
+.DS_Store

@@ -1,0 +1,28 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "http://sqld:8080"
+    depends_on:
+      sqld:
+        condition: service_healthy
+    restart: unless-stopped
+
+  sqld:
+    image: ghcr.io/tursodatabase/libsql-server:latest
+    volumes:
+      - sqld-data:/var/lib/sqld
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - timeout 1 cat < /dev/tcp/localhost/8080 ; [ $? -ne 1 ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+volumes:
+  sqld-data:

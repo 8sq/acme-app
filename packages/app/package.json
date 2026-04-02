@@ -20,6 +20,7 @@
   "dependencies": {
     "@acme/ui": "workspace:*",
     "@libsql/client": "catalog:",
+    "drizzle-kit": "catalog:",
     "drizzle-orm": "catalog:",
     "hono": "catalog:"
   },
@@ -36,7 +37,6 @@
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "bun-types": "catalog:",
-    "drizzle-kit": "catalog:",
     "nitro": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
