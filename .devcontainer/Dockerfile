@@ -22,17 +22,18 @@ USER $USER
 # Remove sudo note on login
 RUN touch /home/$USER/.sudo_as_admin_successful
 
-# Install Playwright chromium and its system dependencies
-RUN npx playwright install chromium --with-deps
-
-# Install pnpm
-COPY package.json /tmp/workspace/package.json
-RUN cd /tmp/workspace && corepack install
+# Install pnpm and setup playwright
+COPY --chown=$USER:$USER package.json pnpm-workspace.yaml /tmp/workspace/
+RUN cd /tmp/workspace/ \
+  && corepack install \
+  && pnpm install 'playwright@catalog:' \
+  && pnpm playwright install chromium --with-deps \
+  && rm -rf /tmp/workspace
 
 # Run build-time user setup script if there's any
 COPY --chown=$USER:$USER .devcontainer /tmp/.devcontainer
 RUN [ ! -f /tmp/.devcontainer/user/build.sh ] \
-    || bash /tmp/.devcontainer/user/build.sh
+  || bash /tmp/.devcontainer/user/build.sh
 
 # Switch back to root, vscode devcontainers will log in as dev
 USER root
