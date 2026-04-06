@@ -27,7 +27,7 @@ COPY --chown=$USER:$USER package.json pnpm-workspace.yaml /tmp/workspace/
 RUN cd /tmp/workspace/ \
   && corepack install \
   && pnpm install 'playwright@catalog:' \
-  && pnpm playwright install chromium --with-deps \
+  && pnpm playwright:install \
   && rm -rf /tmp/workspace
 
 # Run build-time user setup script if there's any
