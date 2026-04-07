@@ -1,8 +1,8 @@
 packages:
   - "packages/*"
 
-# 2 days in seconds, matches renovate's
-minimumReleaseAge: 172800
+# 2 days in minutes, matches renovate's
+minimumReleaseAge: 2880
 
 onlyBuiltDependencies:
   - "@sentry/cli"
@@ -21,10 +21,10 @@ catalog:
   "@storybook/addon-docs": "10.3.4"
   "@storybook/addon-vitest": "10.3.4"
   "@storybook/react-vite": "10.3.4"
-  "@tanstack/react-router": "1.167.4"
-  "@tanstack/react-start": "1.166.16"
+  "@tanstack/react-router": "1.168.10"
+  "@tanstack/react-start": "1.167.16"
   "@testing-library/react": "16.3.2"
-  "@types/node": "22.19.17"
+  "@types/node": "24.12.2"
   "@types/react": "19.2.14"
   "@types/react-dom": "19.2.3"
   "@vitejs/plugin-react": "6.0.1"
@@ -46,7 +46,7 @@ catalog:
   storybook: "10.3.4"
   tsx: "4.21.0"
   turbo: "2.9.3"
-  typescript: "5.9.3"
+  typescript: "6.0.2"
   vite: "8.0.3"
   vitest: "4.1.2"
   wrangler: "4.75.0"
