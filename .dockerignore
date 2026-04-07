@@ -3,12 +3,11 @@ node_modules
 .turbo
 .git
 .github
-.devcontainer
 .wrangler
 .vscode
-.w
 .vibe
 .husky
+.devcontainer/devcontainer.json
 
 # env
 .env
@@ -25,7 +24,6 @@ packages/app/.output
 # dev/test/lint configs
 .oxfmtrc.json
 .oxlintrc.json
-Dockerfile
 compose.yaml
 
 # OS
