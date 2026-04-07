@@ -1,0 +1,30 @@
+node_modules
+.pnpm-store
+.turbo
+.git
+.github
+.wrangler
+.vscode
+.vibe
+.husky
+.devcontainer/devcontainer.json
+
+# env
+.env
+.env.*.local
+
+# runtime artifacts
+*.db
+run/
+coverage/
+
+# build artifacts (copied from build stage instead)
+packages/app/.output
+
+# dev/test/lint configs
+.oxfmtrc.json
+.oxlintrc.json
+compose.yaml
+
+# OS
+.DS_Store
