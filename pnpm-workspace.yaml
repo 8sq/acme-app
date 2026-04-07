@@ -12,7 +12,7 @@ onlyBuiltDependencies:
 
 catalog:
   "@cloudflare/workers-types": "4.20260317.1"
-  "@libsql/client": "0.17.0"
+  "@libsql/client": "0.17.2"
   "@sentry/cloudflare": "10.44.0"
   "@sentry/core": "10.44.0"
   "@sentry/react": "10.44.0"
@@ -32,7 +32,7 @@ catalog:
   "@vitest/coverage-v8": "4.1.0"
   classnames: "2.5.1"
   drizzle-kit: "0.31.10"
-  drizzle-orm: "0.45.1"
+  drizzle-orm: "0.45.2"
   hono: "4.12.8"
   husky: "9.1.7"
   nitro: "3.0.260311-beta"
