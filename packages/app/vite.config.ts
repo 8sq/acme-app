@@ -7,10 +7,10 @@ import { sentryVitePlugin } from "@sentry/vite-plugin";
 const env = process.env;
 
 // Match the backend's environment variables
-env.VITE_SENTRY_ENABLED = env.SENTRY_DSN ?? "";
-env.VITE_SENTRY_ENVIRONMENT = env.SENTRY_ENVIRONMENT ?? "";
-env.VITE_SENTRY_RELEASE = env.SENTRY_RELEASE ?? "";
-env.VITE_SENTRY_DIST = env.SENTRY_DIST ?? "";
+env.VITE_SENTRY_ENABLED = env.SENTRY_DSN;
+env.VITE_SENTRY_ENVIRONMENT = env.SENTRY_ENVIRONMENT;
+env.VITE_SENTRY_RELEASE = env.SENTRY_RELEASE;
+env.VITE_SENTRY_DIST = env.SENTRY_DIST;
 
 export default defineConfig({
   build: {
