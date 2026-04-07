@@ -50,4 +50,4 @@ ENV DATABASE_URL=file:///var/lib/acme/sqlite.db
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "pnpm drizzle-kit migrate && node index.mjs"]
+CMD ["sh", "-c", "pnpm exec drizzle-kit migrate && node index.mjs"]
