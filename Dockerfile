@@ -1,42 +1,36 @@
 # ---- Stage 1: Build ----
-FROM oven/bun:1.3.11-alpine AS build
+FROM node:24-alpine AS build
 
 WORKDIR /app
+RUN corepack enable
 
-# Install dependencies first (cached unless lockfile changes)
-COPY package.json bun.lock bunfig.toml turbo.json ./
-COPY packages/app/package.json packages/app/package.json
-COPY packages/ui/package.json packages/ui/package.json
-COPY packages/tsconfig/package.json packages/tsconfig/package.json
-RUN bun install --frozen-lockfile
-
-# Then copy source and build
+# Install dependencies first (cached unless lockfile/manifests change)
 COPY . .
-RUN bun turbo build --filter=@acme/app
+RUN pnpm install --frozen-lockfile
+RUN pnpm turbo build --filter=@acme/app
 
 # ---- Stage 2: Production ----
-FROM oven/bun:1.3.11-alpine
+FROM node:24-alpine
 
 WORKDIR /app
+RUN corepack enable
 
 # Prepare the data volume
 RUN mkdir -p /var/lib/acme
 VOLUME /var/lib/acme
 
-# Install production dependencies using the workspace lockfile
-COPY --from=build /app/package.json /app/bun.lock /app/bunfig.toml ./
-COPY --from=build /app/packages/app/package.json packages/app/package.json
-COPY --from=build /app/packages/ui/package.json packages/ui/package.json
-COPY --from=build /app/packages/tsconfig/package.json packages/tsconfig/package.json
-RUN sed -i '/"prepare"/d' package.json \
- && bun install --frozen-lockfile --production
+# Self-contained nitro server bundle (with its own package.json)
+COPY --from=build /app/packages/app/.output .
 
-# Server output
-COPY --from=build /app/packages/app/.output packages/app/.output
+# Migrations + drizzle config, alongside the server bundle
+COPY packages/app/db/migrations server/db/migrations
+COPY packages/app/drizzle.config.ts server/drizzle.config.ts
 
-# Migrations
-COPY packages/app/db/migrations packages/app/db/migrations
-COPY packages/app/drizzle.config.ts packages/app/drizzle.config.ts
+# Reinstall server deps fresh so libsql resolves the correct native
+# binding for the build platform via its optionalDependencies. Also
+# pull in drizzle-kit (and its peer deps drizzle-orm + @libsql/client,
+# both of which nitro inlined into the bundle) for the migrate step.
+RUN cd server && pnpm install --prod && pnpm add drizzle-kit drizzle-orm @libsql/client
 
 ENV NODE_ENV=production
 ENV PORT=3000
@@ -44,4 +38,5 @@ ENV DATABASE_URL=file:///var/lib/acme/sqlite.db
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "cd packages/app && bunx drizzle-kit migrate && bun /app/packages/app/.output/server/index.mjs"]
+WORKDIR /app/server
+CMD ["sh", "-c", "pnpm exec drizzle-kit migrate && node index.mjs"]

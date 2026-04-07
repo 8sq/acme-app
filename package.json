@@ -11,7 +11,6 @@
     "test": "turbo test",
     "test:cov": "turbo test:cov",
     "dev": "turbo dev",
-    "start": "bun db:migrate && bun packages/app/.output/server/index.mjs",
     "playwright:install": "playwright install chromium --with-deps",
     "db:generate": "pnpm --filter app db:generate",
     "db:migrate": "pnpm --filter app db:migrate",
