@@ -1,6 +1,7 @@
 import { getRuntimeKey } from "hono/adapter";
 import { createMiddleware } from "hono/factory";
-import type { AppEnv, Database } from "./types";
+import type { AppEnv } from "../server/types";
+import type { Database } from "./types";
 import * as schema from "./schema";
 
 export async function resolveDatabase(
