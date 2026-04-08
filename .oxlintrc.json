@@ -24,6 +24,9 @@
     "eslint/no-void": "off",
     "eslint/no-inline-comments": "off",
 
+    // Superseded by the type-aware alternatives
+    "eslint/require-await": "off",
+
     // Import
     "eslint-plugin-import/no-default-export": "off",
     "eslint-plugin-import/no-relative-parent-imports": "off",

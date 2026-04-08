@@ -1,9 +1,9 @@
 import type { KVNamespace } from "@cloudflare/workers-types";
-import type { Cache } from "./types";
+import type { CacheStore } from "./types";
 
-export function createCloudflareCache(kv: KVNamespace): Cache {
+export function createCloudflareCache(kv: KVNamespace): CacheStore {
   return {
-    get(key) {
+    async get(key) {
       return kv.get(key);
     },
     async set(key, value, ttl) {

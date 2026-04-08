@@ -8,3 +8,6 @@ export const posts = sqliteTable("posts", {
     .notNull()
     .$defaultFn(() => new Date()),
 });
+
+export type Post = typeof posts.$inferSelect;
+export type NewPost = typeof posts.$inferInsert;

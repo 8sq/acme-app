@@ -1,33 +1,34 @@
-import type { Cache } from "./types";
+import type { CacheStore } from "./types";
 
 interface Entry {
   value: string;
   expiresAt?: number;
 }
 
-export function createMemoryCache(): Cache {
+export function createMemoryCache(): CacheStore {
   const store = new Map<string, Entry>();
 
   return {
-    get(key) {
+    // oxlint-disable-next-line typescript/require-await
+    async get(key) {
       const entry = store.get(key);
-      if (!entry) return Promise.resolve(null);
+      if (!entry) return null;
+
       if (entry.expiresAt && Date.now() > entry.expiresAt) {
         store.delete(key);
-        return Promise.resolve(null);
+        return null;
       }
-      return Promise.resolve(entry.value);
+
+      return entry.value;
     },
-    set(key, value, ttl) {
-      store.set(key, {
-        value,
-        expiresAt: ttl ? Date.now() + ttl * 1000 : undefined,
-      });
-      return Promise.resolve();
+    // oxlint-disable-next-line typescript/require-await
+    async set(key, value, ttl) {
+      const expiresAt = ttl ? Date.now() + ttl * 1000 : undefined;
+      store.set(key, { value, expiresAt });
     },
-    delete(key) {
+    // oxlint-disable-next-line typescript/require-await
+    async delete(key) {
       store.delete(key);
-      return Promise.resolve();
     },
   };
 }
