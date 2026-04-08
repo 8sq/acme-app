@@ -22,8 +22,10 @@
     "@acme/ui": "workspace:*",
     "@libsql/client": "catalog:",
     "drizzle-orm": "catalog:",
+    "drizzle-zod": "catalog:",
     "hono": "catalog:",
-    "iovalkey": "catalog:"
+    "iovalkey": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@acme/tsconfig": "workspace:*",

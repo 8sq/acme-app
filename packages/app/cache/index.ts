@@ -1,9 +1,9 @@
 import { getRuntimeKey } from "hono/adapter";
 import { createMiddleware } from "hono/factory";
-import type { AppEnv } from "../db/types";
-import { createCache, type Cache } from "./types";
+import type { AppEnv } from "../server/types";
+import type { Cache } from "./types";
 
-export type { Cache, CacheStore } from "./types";
+export type { Cache } from "./types";
 
 export async function resolveCache(env: AppEnv["Bindings"]): Promise<Cache> {
   // On Cloudflare Workers/Pages, use the KV namespace binding.
@@ -11,18 +11,18 @@ export async function resolveCache(env: AppEnv["Bindings"]): Promise<Cache> {
     if (!env.CACHE) throw new Error("Please add a KV binding named 'CACHE'");
 
     const { createCloudflareCache } = await import("./cloudflare");
-    return createCache(createCloudflareCache(env.CACHE));
+    return createCloudflareCache(env.CACHE);
   }
 
   // On Node.js: use Valkey if CACHE_URL is set (docker compose), otherwise
   // fall back to an in-memory store (dev or single-container Docker).
   if (process.env.CACHE_URL) {
     const { createValkeyCache } = await import("./valkey");
-    return createCache(await createValkeyCache(process.env.CACHE_URL));
+    return createValkeyCache(process.env.CACHE_URL);
   }
 
   const { createMemoryCache } = await import("./memory");
-  return createCache(createMemoryCache());
+  return createMemoryCache();
 }
 
 let cachedCache: Cache | null = null;

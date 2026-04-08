@@ -72,6 +72,9 @@ catalogs:
     drizzle-orm:
       specifier: 0.45.2
       version: 0.45.2
+    drizzle-zod:
+      specifier: 0.8.3
+      version: 0.8.3
     hono:
       specifier: 4.12.10
       version: 4.12.10
@@ -126,6 +129,9 @@ catalogs:
     wrangler:
       specifier: 4.80.0
       version: 4.80.0
+    zod:
+      specifier: 4.3.6
+      version: 4.3.6
 
 importers:
 
@@ -167,12 +173,18 @@ importers:
       drizzle-orm:
         specifier: 'catalog:'
         version: 0.45.2(@cloudflare/workers-types@4.20260405.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1)
+      drizzle-zod:
+        specifier: 'catalog:'
+        version: 0.8.3(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260405.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))(zod@4.3.6)
       hono:
         specifier: 'catalog:'
         version: 4.12.10
       iovalkey:
         specifier: 'catalog:'
         version: 0.3.3
+      zod:
+        specifier: 'catalog:'
+        version: 4.3.6
     devDependencies:
       '@acme/tsconfig':
         specifier: workspace:*
@@ -2904,6 +2916,12 @@ packages:
       sqlite3:
         optional: true
 
+  drizzle-zod@0.8.3:
+    resolution: {integrity: sha512-66yVOuvGhKJnTdiqj1/Xaaz9/qzOdRJADpDa68enqS6g3t0kpNkwNYjUuaeXgZfO/UWuIM9HIhSlJ6C5ZraMww==}
+    peerDependencies:
+      drizzle-orm: '>=0.36.0'
+      zod: ^3.25.0 || ^4.0.0
+
   electron-to-chromium@1.5.331:
     resolution: {integrity: sha512-IbxXrsTlD3hRodkLnbxAPP4OuJYdWCeM3IOdT+CpcMoIwIoDfCmRpEtSPfwBXxVkg9xmBeY7Lz2Eo2TDn/HC3Q==}
 
@@ -4042,6 +4060,9 @@ packages:
 
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+
+  zod@4.3.6:
+    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
 
 snapshots:
 
@@ -5976,6 +5997,11 @@ snapshots:
       '@libsql/client': 0.17.2
       '@opentelemetry/api': 1.9.1
 
+  drizzle-zod@0.8.3(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260405.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))(zod@4.3.6):
+    dependencies:
+      drizzle-orm: 0.45.2(@cloudflare/workers-types@4.20260405.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1)
+      zod: 4.3.6
+
   electron-to-chromium@1.5.331: {}
 
   empathic@2.0.0: {}
@@ -7124,3 +7150,5 @@ snapshots:
       youch-core: 0.3.3
 
   zod@3.25.76: {}
+
+  zod@4.3.6: {}

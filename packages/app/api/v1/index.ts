@@ -1,11 +1,15 @@
+import { createSelectSchema } from "drizzle-zod";
 import { Hono } from "hono";
+import { z } from "zod";
 import { cacheMiddleware } from "../../cache";
-import type { AppEnv } from "../../db/types";
+import type { AppEnv } from "../../server/types";
 import { dbMiddleware } from "../../db";
-import { posts, type Post } from "../../db/schema";
+import { posts } from "../../db/schema";
 
 const POSTS_CACHE_KEY = "posts:all";
 const POSTS_CACHE_TTL = 60;
+
+const postsCacheSchema = z.array(createSelectSchema(posts));
 
 const v1 = new Hono<AppEnv>();
 
@@ -14,15 +18,19 @@ export default v1
   .use(cacheMiddleware)
   .get("/posts", async (context) => {
     const cache = context.var.cache;
-    const cached = await cache.getJson<Post[]>(POSTS_CACHE_KEY);
+    const cached = await cache.get(POSTS_CACHE_KEY);
     if (cached) {
-      context.header("X-Cache", "HIT");
-      return context.json(cached);
+      const parsed = postsCacheSchema.safeParse(JSON.parse(cached));
+      if (parsed.success) {
+        context.header("X-Cache", "HIT");
+        return context.json(parsed.data);
+      }
+      // Cached value didn't match the current schema — fall through and refresh.
     }
 
     const db = context.var.db;
     const allPosts = await db.select().from(posts);
-    await cache.setJson(POSTS_CACHE_KEY, allPosts, POSTS_CACHE_TTL);
+    await cache.set(POSTS_CACHE_KEY, JSON.stringify(allPosts), POSTS_CACHE_TTL);
 
     context.header("X-Cache", "MISS");
     return context.json(allPosts);

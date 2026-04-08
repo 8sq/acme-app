@@ -1,6 +1,6 @@
-import type { CacheStore } from "./types";
+import type { Cache } from "./types";
 
-export async function createValkeyCache(url: string): Promise<CacheStore> {
+export async function createValkeyCache(url: string): Promise<Cache> {
   const { default: Valkey } = await import("iovalkey");
   const client = new Valkey(url);
 

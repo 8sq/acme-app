@@ -1,11 +1,11 @@
-import type { CacheStore } from "./types";
+import type { Cache } from "./types";
 
 interface Entry {
   value: string;
   expiresAt?: number;
 }
 
-export function createMemoryCache(): CacheStore {
+export function createMemoryCache(): Cache {
   const store = new Map<string, Entry>();
 
   return {

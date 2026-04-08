@@ -33,6 +33,7 @@ catalog:
   classnames: "2.5.1"
   drizzle-kit: "0.31.10"
   drizzle-orm: "0.45.2"
+  drizzle-zod: "0.8.3"
   hono: "4.12.10"
   husky: "9.1.7"
   iovalkey: "0.3.3"
@@ -51,3 +52,4 @@ catalog:
   vite: "8.0.3"
   vitest: "4.1.2"
   wrangler: "4.80.0"
+  zod: "4.3.6"
