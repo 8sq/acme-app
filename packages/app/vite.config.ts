@@ -15,7 +15,7 @@ export default defineConfig({
       serverDir: "./server",
       errorHandler: "./server/error.ts",
       rolldownConfig: {
-        external: ["iovalkey", "@libsql/client"],
+        external: ["iovalkey", "@libsql/client", "drizzle-orm/libsql"],
       },
     }),
     sentryPlugin(),
