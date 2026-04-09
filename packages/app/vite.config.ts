@@ -15,7 +15,7 @@ export default defineConfig({
       serverDir: "./server",
       errorHandler: "./server/error.ts",
       rolldownConfig: {
-        external: ["iovalkey"],
+        external: ["iovalkey", "@libsql/client"],
       },
     }),
     sentryPlugin(),
