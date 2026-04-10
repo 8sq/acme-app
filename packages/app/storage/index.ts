@@ -1,4 +1,4 @@
-import type { R2Bucket } from "@cloudflare/workers-types";
+import type { KVNamespace, R2Bucket } from "@cloudflare/workers-types";
 import { getRuntimeKey } from "hono/adapter";
 import { createMiddleware } from "hono/factory";
 import { createStorage, prefixStorage } from "unstorage";
@@ -74,25 +74,58 @@ function s3BucketNameFor(bucket: BucketName): string {
   return bucketNames[bucket];
 }
 
+/**
+ * Resolve the Cloudflare storage driver: R2 (requires billing) or KV
+ * (free tier, opt-in via `KV_STORAGE=<binding-name>`).
+ */
+async function resolveCloudflareDriver(
+  bucket: BucketName,
+  env: AppEnv["Bindings"],
+): Promise<Storage> {
+  const r2Binding = r2BindingFor(bucket, env);
+  if (r2Binding) {
+    const { default: r2Driver } =
+      await import("unstorage/drivers/cloudflare-r2-binding");
+    return createStorage({ driver: r2Driver({ binding: r2Binding }) });
+  }
+
+  // Opt-in KV mode: KV_STORAGE names the KV binding to use (e.g., "CACHE").
+  // CI sets this for preview environments where R2 billing may not be enabled.
+  // oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
+  const kvBindingName = (env as Record<string, unknown>).KV_STORAGE as
+    | string
+    | undefined;
+  if (kvBindingName) {
+    // oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
+    const kvBinding = (env as Record<string, unknown>)[kvBindingName] as
+      | KVNamespace
+      | undefined;
+    if (!kvBinding) {
+      throw new Error(
+        `KV_STORAGE=${kvBindingName} but no binding "${kvBindingName}" exists`,
+      );
+    }
+    const { default: kvDriver } =
+      await import("unstorage/drivers/cloudflare-kv-binding");
+    return createStorage({
+      driver: kvDriver({ binding: kvBinding, base: `storage:${bucket}` }),
+    });
+  }
+
+  throw new Error(
+    "No storage backend: add R2 bindings, or set KV_STORAGE=<binding-name>",
+  );
+}
+
 async function resolveBucket(
   bucket: BucketName,
   env: AppEnv["Bindings"],
 ): Promise<Storage> {
   let storage: Storage;
 
-  // On Cloudflare Workers/Pages, use the per-bucket R2 binding.
   if (getRuntimeKey() === "workerd") {
-    const binding = r2BindingFor(bucket, env);
-    if (!binding) {
-      throw new Error(
-        `Please add an R2 binding named 'STORAGE_${bucket.toUpperCase()}'`,
-      );
-    }
-    const { default: r2Driver } =
-      await import("unstorage/drivers/cloudflare-r2-binding");
-    storage = createStorage({ driver: r2Driver({ binding }) });
+    storage = await resolveCloudflareDriver(bucket, env);
   } else if (process.env.S3_ENDPOINT) {
-    // On Node.js with S3-compatible config, use one S3 bucket per logical bucket.
     const { default: s3Driver } = await import("unstorage/drivers/s3");
     storage = createStorage({
       driver: s3Driver({
@@ -104,7 +137,6 @@ async function resolveBucket(
       }),
     });
   } else {
-    // Fall back to a per-bucket subdirectory on the local filesystem.
     const { default: fsDriver } = await import("unstorage/drivers/fs");
     storage = createStorage({
       driver: fsDriver({

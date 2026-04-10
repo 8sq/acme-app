@@ -61,11 +61,13 @@ jobs:
 
           if [ "${{ github.ref_name }}" = "main" ] && [ "${{ github.event_name }}" = "push" ]; then
             echo "db_name=$PROJECT_SLUG-staging" >> "$GITHUB_OUTPUT"
+            echo "kv_name=$PROJECT_SLUG-staging-cache" >> "$GITHUB_OUTPUT"
             echo "assets_bucket=$PROJECT_SLUG-staging-assets" >> "$GITHUB_OUTPUT"
             echo "uploads_bucket=$PROJECT_SLUG-staging-uploads" >> "$GITHUB_OUTPUT"
             echo "storage_key_prefix=" >> "$GITHUB_OUTPUT"
           else
             echo "db_name=$PROJECT_SLUG-preview-$BRANCH_SLUG" >> "$GITHUB_OUTPUT"
+            echo "kv_name=$PROJECT_SLUG-preview-$BRANCH_SLUG-cache" >> "$GITHUB_OUTPUT"
             echo "assets_bucket=$PROJECT_SLUG-preview-assets" >> "$GITHUB_OUTPUT"
             echo "uploads_bucket=$PROJECT_SLUG-preview-uploads" >> "$GITHUB_OUTPUT"
             echo "storage_key_prefix=$BRANCH_SLUG" >> "$GITHUB_OUTPUT"
@@ -116,6 +118,23 @@ jobs:
             pnpm exec wrangler d1 execute "$DB_NAME" --remote --file=seed.sql
           fi
 
+      - name: Setup KV namespace
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != ''
+        working-directory: packages/app
+        env:
+          KV_NAME: ${{ steps.branch.outputs.kv_name }}
+        run: |
+          KV_ID=$(pnpm exec wrangler kv namespace list | jq -r ".[] | select(.title == \"$KV_NAME\") | .id")
+          if [ -z "$KV_ID" ]; then
+            pnpm exec wrangler kv namespace create "$KV_NAME"
+            KV_ID=$(pnpm exec wrangler kv namespace list | jq -r ".[] | select(.title == \"$KV_NAME\") | .id")
+          fi
+
+          jq --arg kv_id "$KV_ID" \
+            '.kv_namespaces[0].id = $kv_id' \
+            wrangler.json > wrangler.json.tmp
+          mv wrangler.json.tmp wrangler.json
+
       - name: Setup R2 buckets
         if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != ''
         working-directory: packages/app
@@ -151,15 +170,18 @@ jobs:
           SENTRY_RELEASE: ${{ steps.branch.outputs.sentry_release }}
           SENTRY_DIST: ${{ steps.branch.outputs.sentry_dist }}
           STORAGE_KEY_PREFIX: ${{ steps.branch.outputs.storage_key_prefix }}
+          KV_STORAGE: ${{ github.ref_name != 'main' && 'CACHE' || '' }}
         run: |
           jq --arg env "$SENTRY_ENVIRONMENT" \
             --arg rel "$SENTRY_RELEASE" \
             --arg dist "$SENTRY_DIST" \
             --arg prefix "$STORAGE_KEY_PREFIX" \
+            --arg kv_storage "$KV_STORAGE" \
             '.vars.SENTRY_ENVIRONMENT = $env |
              .vars.SENTRY_RELEASE = $rel |
              .vars.SENTRY_DIST = $dist |
-             .vars.STORAGE_KEY_PREFIX = $prefix' \
+             .vars.STORAGE_KEY_PREFIX = $prefix |
+             .vars.KV_STORAGE = $kv_storage' \
             wrangler.json > wrangler.json.tmp
           mv wrangler.json.tmp wrangler.json
 
