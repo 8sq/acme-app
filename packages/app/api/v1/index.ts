@@ -6,6 +6,7 @@ import { cacheMiddleware } from "../../cache";
 import type { AppEnv } from "../../server/types";
 import { dbMiddleware } from "../../db";
 import { posts } from "../../db/schema";
+import testUpload from "./test-upload";
 
 const POSTS_CACHE_KEY = "posts:all";
 const POSTS_CACHE_TTL = 60;
@@ -23,6 +24,7 @@ const postsCacheSchema = z.array(
 const v1 = new Hono<AppEnv>();
 
 export default v1
+  .route("/test-upload", testUpload)
   .use(dbMiddleware)
   .use(cacheMiddleware)
   .get("/posts", async (context) => {
