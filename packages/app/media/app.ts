@@ -3,11 +3,11 @@ import { type Context, Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import type { AppEnv } from "../db/types";
 import { hasDirectPublicUrl, storageMiddleware } from "../storage";
-import { BUCKETS, type BucketName } from "../storage/buckets";
-import { type FileMeta, metaKey } from "./_helpers";
+import { BUCKET_NAMES, BUCKETS, type BucketName } from "../storage/buckets";
+import { type FileMeta, metaKey } from "../storage/helpers";
 
 function buildGetHandler(bucket: BucketName) {
-  return async (context: Context<AppEnv, "/:key">) => {
+  return async (context: Context<AppEnv>) => {
     if (hasDirectPublicUrl(bucket, context.env)) {
       throw new HTTPException(404, {
         message: "this bucket is served from a direct public URL",
@@ -15,6 +15,8 @@ function buildGetHandler(bucket: BucketName) {
     }
 
     const key = context.req.param("key");
+    if (!key) throw new HTTPException(400, { message: "missing key" });
+
     const storage = context.var.storage[bucket];
     const data = await storage.getItemRaw<Uint8Array>(key);
     if (!data) throw new HTTPException(404, { message: "file not found" });
@@ -31,9 +33,13 @@ function buildGetHandler(bucket: BucketName) {
   };
 }
 
-export default new Hono<AppEnv>()
+const media = new Hono<AppEnv>()
   .onError(sentryHonoErrorHandler)
   .basePath("/media")
-  .use(storageMiddleware)
-  .get("/public/:key", buildGetHandler("public"))
-  .get("/private/:key", buildGetHandler("private"));
+  .use(storageMiddleware);
+
+for (const bucket of BUCKET_NAMES) {
+  media.get(`/${bucket}/:key`, buildGetHandler(bucket));
+}
+
+export default media;

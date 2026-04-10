@@ -24,7 +24,8 @@
     "aws4fetch": "catalog:",
     "drizzle-orm": "catalog:",
     "hono": "catalog:",
-    "unstorage": "catalog:"
+    "unstorage": "catalog:",
+    "uuid": "catalog:"
   },
   "devDependencies": {
     "@acme/tsconfig": "workspace:*",

@@ -90,10 +90,7 @@ async function resolveCloudflareDriver(
 
   // Opt-in KV mode: KV_STORAGE names the KV binding to use (e.g., "CACHE").
   // CI sets this for preview environments where R2 billing may not be enabled.
-  // oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
-  const kvBindingName = (env as Record<string, unknown>).KV_STORAGE as
-    | string
-    | undefined;
+  const kvBindingName = env.KV_STORAGE;
   if (kvBindingName) {
     // oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
     const kvBinding = (env as Record<string, unknown>)[kvBindingName] as
@@ -104,6 +101,7 @@ async function resolveCloudflareDriver(
         `KV_STORAGE=${kvBindingName} but no binding "${kvBindingName}" exists`,
       );
     }
+
     const { default: kvDriver } =
       await import("unstorage/drivers/cloudflare-kv-binding");
     return createStorage({

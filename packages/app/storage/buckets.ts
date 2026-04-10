@@ -12,7 +12,8 @@
  *      `STORAGE_<NAME>_PUBLIC_URL`) to `CfBindings` and `wrangler.json`.
  *   3. Add new keys to the per-bucket `Record<BucketName, …>` lookups in
  *      `storage/index.ts` — TypeScript will fail compilation until you do.
- *   4. Mount a route file for it in `api/v1/index.ts`.
+ *   4. Media routes are auto-mounted from `BUCKET_NAMES` — no manual
+ *      wiring needed in `media/app.ts`.
  */
 export const BUCKETS = {
   /** Publicly readable content — product images, avatars, post images, … */
