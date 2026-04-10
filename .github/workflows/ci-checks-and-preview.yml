@@ -182,6 +182,8 @@ jobs:
             STORAGE_SIGNING_KEY="${GITHUB_REPOSITORY}:${PR_NUMBER:-main}:${BRANCH_SLUG}"
           fi
 
+          # Build a JSON object of all runtime vars, then filter out
+          # empty values so they don't override the app's defaults.
           jq --arg env "$SENTRY_ENVIRONMENT" \
             --arg rel "$SENTRY_RELEASE" \
             --arg dist "$SENTRY_DIST" \
@@ -196,20 +198,22 @@ jobs:
             --arg s3_region "$S3_REGION" \
             --arg s3_bucket_public "$S3_BUCKET_PUBLIC" \
             --arg s3_bucket_private "$S3_BUCKET_PRIVATE" \
-            '.vars.SENTRY_ENVIRONMENT = $env |
-             .vars.SENTRY_RELEASE = $rel |
-             .vars.SENTRY_DIST = $dist |
-             .vars.STORAGE_PREFIX_PUBLIC = $prefix_public |
-             .vars.STORAGE_PREFIX_PRIVATE = $prefix_private |
-             .vars.STORAGE_SIGNING_KEY = $signing_key |
-             .vars.STORAGE_URL_PUBLIC = $storage_url_public |
-             .vars.KV_STORAGE = $kv_storage |
-             .vars.S3_ENDPOINT = $s3_endpoint |
-             .vars.S3_ACCESS_KEY_ID = $s3_access_key_id |
-             .vars.S3_SECRET_ACCESS_KEY = $s3_secret_access_key |
-             .vars.S3_REGION = $s3_region |
-             .vars.S3_BUCKET_PUBLIC = $s3_bucket_public |
-             .vars.S3_BUCKET_PRIVATE = $s3_bucket_private' \
+            '.vars += ({
+               SENTRY_ENVIRONMENT: $env,
+               SENTRY_RELEASE: $rel,
+               SENTRY_DIST: $dist,
+               STORAGE_PREFIX_PUBLIC: $prefix_public,
+               STORAGE_PREFIX_PRIVATE: $prefix_private,
+               STORAGE_SIGNING_KEY: $signing_key,
+               STORAGE_URL_PUBLIC: $storage_url_public,
+               KV_STORAGE: $kv_storage,
+               S3_ENDPOINT: $s3_endpoint,
+               S3_ACCESS_KEY_ID: $s3_access_key_id,
+               S3_SECRET_ACCESS_KEY: $s3_secret_access_key,
+               S3_REGION: $s3_region,
+               S3_BUCKET_PUBLIC: $s3_bucket_public,
+               S3_BUCKET_PRIVATE: $s3_bucket_private
+             } | with_entries(select(.value != "")))' \
             wrangler.json > wrangler.json.tmp
           mv wrangler.json.tmp wrangler.json
 
