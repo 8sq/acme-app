@@ -77,7 +77,7 @@ const media = new Hono<AppEnv>()
   .use(storageMiddleware);
 
 for (const bucket of BUCKET_NAMES) {
-  media.get(`/${bucket}/:key`, buildGetHandler(bucket));
+  media.get(`/${bucket}/:key{.+}`, buildGetHandler(bucket));
 }
 
 export default media;
