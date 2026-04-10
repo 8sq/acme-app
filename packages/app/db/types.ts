@@ -1,5 +1,6 @@
 import type { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
 import type { CfBindings } from "../server/types";
+import type { Buckets } from "../storage/types";
 import type * as schema from "./schema";
 
 export type { CfBindings };
@@ -14,5 +15,6 @@ export interface AppEnv {
   Bindings: CfBindings;
   Variables: {
     db: Database;
+    storage: Buckets;
   };
 }

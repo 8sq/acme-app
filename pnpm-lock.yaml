@@ -63,6 +63,9 @@ catalogs:
     '@vitest/coverage-v8':
       specifier: 4.1.2
       version: 4.1.2
+    aws4fetch:
+      specifier: 1.0.20
+      version: 1.0.20
     classnames:
       specifier: 2.5.1
       version: 2.5.1
@@ -114,6 +117,9 @@ catalogs:
     typescript:
       specifier: 6.0.2
       version: 6.0.2
+    unstorage:
+      specifier: 2.0.0-alpha.7
+      version: 2.0.0-alpha.7
     vite:
       specifier: 8.0.3
       version: 8.0.3
@@ -161,12 +167,18 @@ importers:
       '@libsql/client':
         specifier: 'catalog:'
         version: 0.17.2
+      aws4fetch:
+        specifier: 'catalog:'
+        version: 1.0.20
       drizzle-orm:
         specifier: 'catalog:'
         version: 0.45.2(@cloudflare/workers-types@4.20260405.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1)
       hono:
         specifier: 'catalog:'
         version: 4.12.10
+      unstorage:
+        specifier: 'catalog:'
+        version: 2.0.0-alpha.7(aws4fetch@1.0.20)(db0@0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260405.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1)))(lru-cache@11.2.7)(ofetch@2.0.0-alpha.3)
     devDependencies:
       '@acme/tsconfig':
         specifier: workspace:*
@@ -197,7 +209,7 @@ importers:
         version: 0.31.10
       nitro:
         specifier: 'catalog:'
-        version: 3.0.260311-beta(@libsql/client@0.17.2)(dotenv@16.6.1)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260405.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))(lru-cache@11.2.7)(miniflare@4.20260401.0)(rollup@4.60.1)(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.2)(@types/node@24.12.2)(esbuild@0.27.5)(tsx@4.21.0))
+        version: 3.0.260311-beta(@libsql/client@0.17.2)(aws4fetch@1.0.20)(dotenv@16.6.1)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260405.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))(lru-cache@11.2.7)(miniflare@4.20260401.0)(rollup@4.60.1)(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.2)(@types/node@24.12.2)(esbuild@0.27.5)(tsx@4.21.0))
       react:
         specifier: 'catalog:'
         version: 19.2.4
@@ -261,7 +273,7 @@ importers:
         version: 4.12.10
       nitro:
         specifier: 'catalog:'
-        version: 3.0.260311-beta(@libsql/client@0.17.2)(dotenv@16.6.1)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260405.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))(lru-cache@11.2.7)(miniflare@4.20260401.0)(rollup@4.60.1)(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.2)(@types/node@24.12.2)(esbuild@0.27.5)(tsx@4.21.0))
+        version: 3.0.260311-beta(@libsql/client@0.17.2)(aws4fetch@1.0.20)(dotenv@16.6.1)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260405.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))(lru-cache@11.2.7)(miniflare@4.20260401.0)(rollup@4.60.1)(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.2)(@types/node@24.12.2)(esbuild@0.27.5)(tsx@4.21.0))
       react:
         specifier: 'catalog:'
         version: 19.2.4
@@ -2582,6 +2594,9 @@ packages:
 
   ast-v8-to-istanbul@1.0.0:
     resolution: {integrity: sha512-1fSfIwuDICFA4LKkCzRPO7F0hzFf0B7+Xqrl27ynQaa+Rh0e1Es0v6kWHPott3lU10AyAr7oKHa65OppjLn3Rg==}
+
+  aws4fetch@1.0.20:
+    resolution: {integrity: sha512-/djoAN709iY65ETD6LKCtyyEI04XIBP5xVvfmNxsEP0uJB5tyaGBztSryRr4HqMStr9R06PisQE7m9zDTXKu6g==}
 
   axe-core@4.11.2:
     resolution: {integrity: sha512-byD6KPdvo72y/wj2T/4zGEvvlis+PsZsn/yPS3pEO+sFpcrqRpX/TJCxvVaEsNeMrfQbCr7w163YqoD9IYwHXw==}
@@ -5735,6 +5750,8 @@ snapshots:
       estree-walker: 3.0.3
       js-tokens: 10.0.0
 
+  aws4fetch@1.0.20: {}
+
   axe-core@4.11.2: {}
 
   babel-dead-code-elimination@1.0.12:
@@ -6365,7 +6382,7 @@ snapshots:
 
   nf3@0.3.14: {}
 
-  nitro@3.0.260311-beta(@libsql/client@0.17.2)(dotenv@16.6.1)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260405.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))(lru-cache@11.2.7)(miniflare@4.20260401.0)(rollup@4.60.1)(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.2)(@types/node@24.12.2)(esbuild@0.27.5)(tsx@4.21.0)):
+  nitro@3.0.260311-beta(@libsql/client@0.17.2)(aws4fetch@1.0.20)(dotenv@16.6.1)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260405.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))(lru-cache@11.2.7)(miniflare@4.20260401.0)(rollup@4.60.1)(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.2)(@types/node@24.12.2)(esbuild@0.27.5)(tsx@4.21.0)):
     dependencies:
       consola: 3.4.2
       crossws: 0.4.4(srvx@0.11.14)
@@ -6380,7 +6397,7 @@ snapshots:
       rolldown: 1.0.0-rc.13
       srvx: 0.11.14
       unenv: 2.0.0-rc.24
-      unstorage: 2.0.0-alpha.7(db0@0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260405.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1)))(lru-cache@11.2.7)(ofetch@2.0.0-alpha.3)
+      unstorage: 2.0.0-alpha.7(aws4fetch@1.0.20)(db0@0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260405.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1)))(lru-cache@11.2.7)(ofetch@2.0.0-alpha.3)
     optionalDependencies:
       dotenv: 16.6.1
       rollup: 4.60.1
@@ -6905,8 +6922,9 @@ snapshots:
       picomatch: 4.0.4
       webpack-virtual-modules: 0.6.2
 
-  unstorage@2.0.0-alpha.7(db0@0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260405.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1)))(lru-cache@11.2.7)(ofetch@2.0.0-alpha.3):
+  unstorage@2.0.0-alpha.7(aws4fetch@1.0.20)(db0@0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260405.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1)))(lru-cache@11.2.7)(ofetch@2.0.0-alpha.3):
     optionalDependencies:
+      aws4fetch: 1.0.20
       db0: 0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260405.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))
       lru-cache: 11.2.7
       ofetch: 2.0.0-alpha.3

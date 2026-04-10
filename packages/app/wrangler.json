@@ -13,5 +13,17 @@
       "database_id": "00000000-0000-0000-0000-000000000000",
       "migrations_dir": "db/migrations"
     }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "STORAGE_ASSETS",
+      "bucket_name": "acme-assets",
+      "preview_bucket_name": "acme-assets-preview"
+    },
+    {
+      "binding": "STORAGE_UPLOADS",
+      "bucket_name": "acme-uploads",
+      "preview_bucket_name": "acme-uploads-preview"
+    }
   ]
 }

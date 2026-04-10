@@ -21,8 +21,10 @@
     "@acme/sentry": "workspace:*",
     "@acme/ui": "workspace:*",
     "@libsql/client": "catalog:",
+    "aws4fetch": "catalog:",
     "drizzle-orm": "catalog:",
-    "hono": "catalog:"
+    "hono": "catalog:",
+    "unstorage": "catalog:"
   },
   "devDependencies": {
     "@acme/tsconfig": "workspace:*",

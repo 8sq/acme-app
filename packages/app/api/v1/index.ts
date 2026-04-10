@@ -2,11 +2,17 @@ import { Hono } from "hono";
 import type { AppEnv } from "../../db/types";
 import { dbMiddleware } from "../../db";
 import { posts } from "../../db/schema";
+import { storageMiddleware } from "../../storage";
+import assets from "./assets";
+import uploads from "./uploads";
 
 const v1 = new Hono<AppEnv>();
 
 export default v1
   .use(dbMiddleware)
+  .use(storageMiddleware)
+  .route("/assets", assets)
+  .route("/uploads", uploads)
   .get("/posts", async (context) => {
     const db = context.var.db;
     const allPosts = await db.select().from(posts);

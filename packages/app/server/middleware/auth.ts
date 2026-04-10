@@ -1,8 +1,20 @@
 import { defineEventHandler } from "nitro/h3";
+import { PUBLIC_BUCKETS } from "../../storage/buckets";
 import type { CfBindings } from "../types";
+
+const publicBucketReads = PUBLIC_BUCKETS.map((name) => `/api/v1/${name}/`);
 
 export default defineEventHandler((event) => {
   if (event.url.pathname === "/api/health") {
+    return;
+  }
+
+  // Public buckets: anonymous reads (GET/HEAD) allowed, writes still
+  // require auth.
+  if (
+    (event.req.method === "GET" || event.req.method === "HEAD") &&
+    publicBucketReads.some((prefix) => event.url.pathname.startsWith(prefix))
+  ) {
     return;
   }
 

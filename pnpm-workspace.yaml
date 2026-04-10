@@ -11,6 +11,7 @@ onlyBuiltDependencies:
   - workerd
 
 catalog:
+  aws4fetch: "1.0.20"
   "@cloudflare/workers-types": "4.20260405.1"
   "@libsql/client": "0.17.2"
   "@sentry/cloudflare": "10.47.0"
@@ -47,6 +48,7 @@ catalog:
   tsx: "4.21.0"
   turbo: "2.9.4"
   typescript: "6.0.2"
+  unstorage: "2.0.0-alpha.7"
   vite: "8.0.3"
   vitest: "4.1.2"
   wrangler: "4.80.0"
