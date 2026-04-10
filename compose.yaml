@@ -26,11 +26,12 @@ x-app: &app
     # When empty, public files are served through the /media proxy.
     STORAGE_URL_PUBLIC: "${STORAGE_URL_PUBLIC:-}"
 
-    # ── Storage signing (optional) ──
-    # HMAC key for signing private file URLs when S3 presigning is not
-    # available.
-    # Not needed when S3_ENDPOINT is set — S3 presigned URLs are used instead.
-    STORAGE_SIGNING_KEY: ""
+    # ── Storage signing ──
+    # HMAC key for signing private file URLs. When set, private files are
+    # served through the /media proxy with HMAC token verification instead
+    # of S3 presigned URLs. Required here because MinIO is internal and
+    # not reachable from the browser.
+    STORAGE_SIGNING_KEY: "${STORAGE_SIGNING_KEY:?required}"
   depends_on:
     sqld:
       condition: service_healthy

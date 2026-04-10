@@ -21,18 +21,30 @@ function hasS3Creds(env: AppEnv["Bindings"]): boolean {
 
 /**
  * True when the proxy must refuse to serve because a better access path
- * exists:
- * - Any bucket with an explicit `baseUrl` → true
- * - Private bucket with S3 creds → true (presigning available)
- * - Public bucket with S3 creds but no `baseUrl` → false (S3 endpoint
- *   may not serve anonymous reads, e.g., R2)
+ * exists.
  */
 export function isProxyDisabled(
   bucket: BucketName,
   env: AppEnv["Bindings"],
 ): boolean {
-  if (BUCKETS[bucket].baseUrl(env)) return true;
-  if (!BUCKETS[bucket].public && hasS3Creds(env)) return true;
+  // Explicit direct URL configured — proxy not needed.
+  if (BUCKETS[bucket].baseUrl(env)) {
+    return true;
+  }
+
+  // HMAC signing key set — admin wants the proxy path (e.g., S3
+  // endpoint is internal and not reachable from the browser).
+  if (env.STORAGE_SIGNING_KEY ?? process.env.STORAGE_SIGNING_KEY) {
+    return false;
+  }
+
+  // Private bucket with S3 creds — use S3 presigned URLs directly.
+  // Public buckets fall through to proxy (S3 endpoint may not serve
+  // anonymous reads, e.g., R2).
+  if (!BUCKETS[bucket].public && hasS3Creds(env)) {
+    return true;
+  }
+
   return false;
 }
 
@@ -72,10 +84,12 @@ export async function hmacSign(data: string, secret: string): Promise<string> {
 /**
  * Returns the best available URL for accessing a file. Three tiers:
  *
- * 1. **S3 presigning** — `S3_*` creds set → signed URL direct to
- *    R2/S3/MinIO. Worker never proxies bytes.
- * 2. **HMAC app signing** — `STORAGE_SIGNING_KEY` set → signed proxy
- *    URL with expiry. Worker proxies but validates the token.
+ * 1. **HMAC app signing** — `STORAGE_SIGNING_KEY` set → signed proxy
+ *    URL with expiry. Takes priority so environments where the S3
+ *    endpoint is not reachable from the browser (e.g., Docker Compose
+ *    with internal MinIO) can force the proxy path.
+ * 2. **S3 presigning** — `S3_*` creds set → signed URL direct to
+ *    R2/S3. Worker never proxies bytes.
  * 3. **Plain proxy** — neither set → `/media/<bucket>/<key>` (dev
  *    fallback, no expiry).
  */
@@ -85,7 +99,16 @@ export async function presignUrl(
   key: string,
   ttlSeconds = 300,
 ): Promise<string> {
-  // Tier 1: S3 presigning
+  // Tier 1: HMAC app-level signing. When set, the admin explicitly
+  // wants the proxy path (e.g., S3 endpoint is internal).
+  const signingKey = env.STORAGE_SIGNING_KEY ?? process.env.STORAGE_SIGNING_KEY;
+  if (signingKey) {
+    const expires = Math.floor(Date.now() / 1000) + ttlSeconds;
+    const token = await hmacSign(`${bucket}:${key}:${expires}`, signingKey);
+    return `/media/${bucket}/${key}?expires=${expires}&token=${token}`;
+  }
+
+  // Tier 2: S3 presigning (direct to bucket, no proxy)
   const endpoint = env.S3_ENDPOINT ?? process.env.S3_ENDPOINT;
   const accessKeyId = env.S3_ACCESS_KEY_ID ?? process.env.S3_ACCESS_KEY_ID;
   const secretAccessKey =
@@ -108,14 +131,6 @@ export async function presignUrl(
       aws: { signQuery: true },
     });
     return signed.url;
-  }
-
-  // Tier 2: HMAC app-level signing
-  const signingKey = env.STORAGE_SIGNING_KEY ?? process.env.STORAGE_SIGNING_KEY;
-  if (signingKey) {
-    const expires = Math.floor(Date.now() / 1000) + ttlSeconds;
-    const token = await hmacSign(`${bucket}:${key}:${expires}`, signingKey);
-    return `/media/${bucket}/${key}?expires=${expires}&token=${token}`;
   }
 
   // Tier 3: public buckets get the dev-fallback proxy URL. Private
