@@ -1,7 +1,7 @@
 import type { R2Bucket } from "@cloudflare/workers-types";
 import { getRuntimeKey } from "hono/adapter";
 import { createMiddleware } from "hono/factory";
-import { createStorage } from "unstorage";
+import { createStorage, prefixStorage } from "unstorage";
 import type { AppEnv } from "../db/types";
 import type { BucketName } from "./buckets";
 import type { Buckets, Storage } from "./types";
@@ -78,6 +78,8 @@ async function resolveBucket(
   bucket: BucketName,
   env: AppEnv["Bindings"],
 ): Promise<Storage> {
+  let storage: Storage;
+
   // On Cloudflare Workers/Pages, use the per-bucket R2 binding.
   if (getRuntimeKey() === "workerd") {
     const binding = r2BindingFor(bucket, env);
@@ -88,13 +90,11 @@ async function resolveBucket(
     }
     const { default: r2Driver } =
       await import("unstorage/drivers/cloudflare-r2-binding");
-    return createStorage({ driver: r2Driver({ binding }) });
-  }
-
-  // On Node.js with S3-compatible config, use one S3 bucket per logical bucket.
-  if (process.env.S3_ENDPOINT) {
+    storage = createStorage({ driver: r2Driver({ binding }) });
+  } else if (process.env.S3_ENDPOINT) {
+    // On Node.js with S3-compatible config, use one S3 bucket per logical bucket.
     const { default: s3Driver } = await import("unstorage/drivers/s3");
-    return createStorage({
+    storage = createStorage({
       driver: s3Driver({
         accessKeyId: process.env.S3_ACCESS_KEY_ID ?? "",
         secretAccessKey: process.env.S3_SECRET_ACCESS_KEY ?? "",
@@ -103,15 +103,24 @@ async function resolveBucket(
         bucket: s3BucketNameFor(bucket),
       }),
     });
+  } else {
+    // Fall back to a per-bucket subdirectory on the local filesystem.
+    const { default: fsDriver } = await import("unstorage/drivers/fs");
+    storage = createStorage({
+      driver: fsDriver({
+        base: `${process.env.STORAGE_DIR ?? "./data/storage"}/${bucket}`,
+      }),
+    });
   }
 
-  // Fall back to a per-bucket subdirectory on the local filesystem.
-  const { default: fsDriver } = await import("unstorage/drivers/fs");
-  return createStorage({
-    driver: fsDriver({
-      base: `${process.env.STORAGE_DIR ?? "./data/storage"}/${bucket}`,
-    }),
-  });
+  // In preview environments, each branch's objects are namespaced under a
+  // key prefix so multiple PRs can share the same physical bucket.
+  const keyPrefix = env.STORAGE_KEY_PREFIX ?? process.env.STORAGE_KEY_PREFIX;
+  if (keyPrefix) {
+    storage = prefixStorage(storage, keyPrefix);
+  }
+
+  return storage;
 }
 
 export async function resolveStorage(

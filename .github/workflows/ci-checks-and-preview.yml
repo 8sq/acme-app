@@ -61,8 +61,14 @@ jobs:
 
           if [ "${{ github.ref_name }}" = "main" ] && [ "${{ github.event_name }}" = "push" ]; then
             echo "db_name=$PROJECT_SLUG-staging" >> "$GITHUB_OUTPUT"
+            echo "assets_bucket=$PROJECT_SLUG-staging-assets" >> "$GITHUB_OUTPUT"
+            echo "uploads_bucket=$PROJECT_SLUG-staging-uploads" >> "$GITHUB_OUTPUT"
+            echo "storage_key_prefix=" >> "$GITHUB_OUTPUT"
           else
             echo "db_name=$PROJECT_SLUG-preview-$BRANCH_SLUG" >> "$GITHUB_OUTPUT"
+            echo "assets_bucket=$PROJECT_SLUG-preview-assets" >> "$GITHUB_OUTPUT"
+            echo "uploads_bucket=$PROJECT_SLUG-preview-uploads" >> "$GITHUB_OUTPUT"
+            echo "storage_key_prefix=$BRANCH_SLUG" >> "$GITHUB_OUTPUT"
           fi
 
           OWNER_SLUG=$(slugify "${{ github.repository_owner }}")
@@ -110,6 +116,33 @@ jobs:
             pnpm exec wrangler d1 execute "$DB_NAME" --remote --file=seed.sql
           fi
 
+      - name: Setup R2 buckets
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != ''
+        working-directory: packages/app
+        env:
+          ASSETS_BUCKET: ${{ steps.branch.outputs.assets_bucket }}
+          UPLOADS_BUCKET: ${{ steps.branch.outputs.uploads_bucket }}
+          IS_PREVIEW: ${{ github.ref_name != 'main' || github.event_name != 'push' }}
+        run: |
+          pnpm exec wrangler r2 bucket create "$ASSETS_BUCKET" || true
+          pnpm exec wrangler r2 bucket create "$UPLOADS_BUCKET" || true
+
+          # Auto-expire preview objects after 7 days so stale PR data
+          # doesn't accumulate. Staging buckets get no lifecycle rule.
+          if [ "$IS_PREVIEW" = "true" ]; then
+            for BUCKET in "$ASSETS_BUCKET" "$UPLOADS_BUCKET"; do
+              pnpm exec wrangler r2 bucket lifecycle add "$BUCKET" preview-ttl --expire-days 7 --force || true
+            done
+          fi
+
+          jq --arg assets "$ASSETS_BUCKET" --arg uploads "$UPLOADS_BUCKET" \
+            '.r2_buckets[0].bucket_name = $assets |
+             .r2_buckets[0].preview_bucket_name = $assets |
+             .r2_buckets[1].bucket_name = $uploads |
+             .r2_buckets[1].preview_bucket_name = $uploads' \
+            wrangler.json > wrangler.json.tmp
+          mv wrangler.json.tmp wrangler.json
+
       - name: Set runtime vars
         if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != ''
         working-directory: packages/app
@@ -117,13 +150,16 @@ jobs:
           SENTRY_ENVIRONMENT: ${{ steps.branch.outputs.sentry_environment }}
           SENTRY_RELEASE: ${{ steps.branch.outputs.sentry_release }}
           SENTRY_DIST: ${{ steps.branch.outputs.sentry_dist }}
+          STORAGE_KEY_PREFIX: ${{ steps.branch.outputs.storage_key_prefix }}
         run: |
           jq --arg env "$SENTRY_ENVIRONMENT" \
             --arg rel "$SENTRY_RELEASE" \
             --arg dist "$SENTRY_DIST" \
+            --arg prefix "$STORAGE_KEY_PREFIX" \
             '.vars.SENTRY_ENVIRONMENT = $env |
              .vars.SENTRY_RELEASE = $rel |
-             .vars.SENTRY_DIST = $dist' \
+             .vars.SENTRY_DIST = $dist |
+             .vars.STORAGE_KEY_PREFIX = $prefix' \
             wrangler.json > wrangler.json.tmp
           mv wrangler.json.tmp wrangler.json
 
