@@ -1,6 +1,7 @@
 import type { KVNamespace } from "@cloudflare/workers-types";
 import { getRuntimeKey } from "hono/adapter";
 import { createMiddleware } from "hono/factory";
+import { HTTPException } from "hono/http-exception";
 import { createStorage, prefixStorage } from "unstorage";
 import type { AppEnv } from "../server/types";
 import { BUCKET_NAMES, BUCKETS, type BucketName } from "./buckets";
@@ -114,8 +115,15 @@ export async function presignUrl(
     return `/media/${bucket}/${key}?expires=${expires}&token=${token}`;
   }
 
-  // Tier 3: plain proxy URL (dev fallback)
-  return urlFor(bucket, env, key);
+  // Tier 3: public buckets get the dev-fallback proxy URL. Private
+  // buckets refuse — no signing mechanism means no access control.
+  if (BUCKETS[bucket].public) {
+    return urlFor(bucket, env, key);
+  }
+
+  throw new HTTPException(503, {
+    message: "private storage access is not configured",
+  });
 }
 
 // ── Driver resolution ───────────────────────────────────────────────

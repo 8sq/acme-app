@@ -51,9 +51,12 @@ ENV PORT=3000
 # Default database URL for standalone deployments using the fs driver.
 ENV DATABASE_URL=file:///var/lib/acme/sqlite.db
 
-# HMAC key for signing private file URLs. Required when not using S3
-# storage (i.e., standalone fs driver).
-ENV STORAGE_SIGNING_KEY=acme-standalone-signing-key-replace-me
+# ── Private file access ──
+# To serve private files, set one of:
+#   -e S3_ENDPOINT=... -e S3_ACCESS_KEY_ID=... -e S3_SECRET_ACCESS_KEY=...
+#   -e STORAGE_SIGNING_KEY=<random-secret>
+# Without either, private file URLs return 503.
+ENV STORAGE_SIGNING_KEY=
 
 EXPOSE 3000
 
