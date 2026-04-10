@@ -18,9 +18,8 @@ function readPublicUrlEnv(
   env: AppEnv["Bindings"],
 ): string | undefined {
   const urls: Record<BucketName, string | undefined> = {
-    assets:
-      env.STORAGE_ASSETS_PUBLIC_URL ?? process.env.STORAGE_ASSETS_PUBLIC_URL,
-    uploads: undefined, // private bucket — no public URL by definition
+    public: env.STORAGE_PUBLIC_URL ?? process.env.STORAGE_PUBLIC_URL,
+    private: undefined, // private bucket — no public URL by definition
   };
   return urls[bucket];
 }
@@ -59,8 +58,8 @@ function r2BindingFor(
   env: AppEnv["Bindings"],
 ): R2Bucket | undefined {
   const bindings: Record<BucketName, R2Bucket | undefined> = {
-    assets: env.STORAGE_ASSETS,
-    uploads: env.STORAGE_UPLOADS,
+    public: env.STORAGE_PUBLIC,
+    private: env.STORAGE_PRIVATE,
   };
   return bindings[bucket];
 }
@@ -68,8 +67,8 @@ function r2BindingFor(
 /** Per-bucket S3 bucket name. Exhaustive over `BucketName`. */
 function s3BucketNameFor(bucket: BucketName): string {
   const bucketNames: Record<BucketName, string> = {
-    assets: process.env.S3_BUCKET_ASSETS ?? "acme-assets",
-    uploads: process.env.S3_BUCKET_UPLOADS ?? "acme-uploads",
+    public: process.env.S3_BUCKET_PUBLIC ?? "acme-public",
+    private: process.env.S3_BUCKET_PRIVATE ?? "acme-private",
   };
   return bucketNames[bucket];
 }
@@ -161,11 +160,11 @@ export async function resolveStorage(
   // Building this object literally (rather than reducing over BUCKETS) keeps
   // the result type narrow without any cast — the compiler verifies every
   // BucketName key is present. Adding a bucket is a compile-time push.
-  const [assets, uploads] = await Promise.all([
-    resolveBucket("assets", env),
-    resolveBucket("uploads", env),
+  const [publicBucket, privateBucket] = await Promise.all([
+    resolveBucket("public", env),
+    resolveBucket("private", env),
   ]);
-  return { assets, uploads };
+  return { public: publicBucket, private: privateBucket };
 }
 
 let cachedStorage: Buckets | null = null;

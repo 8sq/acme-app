@@ -22,14 +22,14 @@
   ],
   "r2_buckets": [
     {
-      "binding": "STORAGE_ASSETS",
-      "bucket_name": "acme-assets",
-      "preview_bucket_name": "acme-assets-preview"
+      "binding": "STORAGE_PUBLIC",
+      "bucket_name": "acme-public",
+      "preview_bucket_name": "acme-public-preview"
     },
     {
-      "binding": "STORAGE_UPLOADS",
-      "bucket_name": "acme-uploads",
-      "preview_bucket_name": "acme-uploads-preview"
+      "binding": "STORAGE_PRIVATE",
+      "bucket_name": "acme-private",
+      "preview_bucket_name": "acme-private-preview"
     }
   ]
 }

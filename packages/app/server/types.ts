@@ -8,9 +8,9 @@ import type {
 export interface CfBindings extends SentryBindings {
   DB?: D1Database;
   CACHE?: KVNamespace;
-  STORAGE_ASSETS?: R2Bucket;
-  STORAGE_ASSETS_PUBLIC_URL?: string;
-  STORAGE_UPLOADS?: R2Bucket;
+  STORAGE_PUBLIC?: R2Bucket;
+  STORAGE_PUBLIC_URL?: string;
+  STORAGE_PRIVATE?: R2Bucket;
   STORAGE_KEY_PREFIX?: string;
   KV_STORAGE?: string;
   BASIC_AUTH_CREDENTIALS?: string;

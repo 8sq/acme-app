@@ -62,14 +62,14 @@ jobs:
           if [ "${{ github.ref_name }}" = "main" ] && [ "${{ github.event_name }}" = "push" ]; then
             echo "db_name=$PROJECT_SLUG-staging" >> "$GITHUB_OUTPUT"
             echo "kv_name=$PROJECT_SLUG-staging-cache" >> "$GITHUB_OUTPUT"
-            echo "assets_bucket=$PROJECT_SLUG-staging-assets" >> "$GITHUB_OUTPUT"
-            echo "uploads_bucket=$PROJECT_SLUG-staging-uploads" >> "$GITHUB_OUTPUT"
+            echo "public_bucket=$PROJECT_SLUG-staging-public" >> "$GITHUB_OUTPUT"
+            echo "private_bucket=$PROJECT_SLUG-staging-private" >> "$GITHUB_OUTPUT"
             echo "storage_key_prefix=" >> "$GITHUB_OUTPUT"
           else
             echo "db_name=$PROJECT_SLUG-preview-$BRANCH_SLUG" >> "$GITHUB_OUTPUT"
             echo "kv_name=$PROJECT_SLUG-preview-$BRANCH_SLUG-cache" >> "$GITHUB_OUTPUT"
-            echo "assets_bucket=$PROJECT_SLUG-preview-assets" >> "$GITHUB_OUTPUT"
-            echo "uploads_bucket=$PROJECT_SLUG-preview-uploads" >> "$GITHUB_OUTPUT"
+            echo "public_bucket=$PROJECT_SLUG-preview-public" >> "$GITHUB_OUTPUT"
+            echo "private_bucket=$PROJECT_SLUG-preview-private" >> "$GITHUB_OUTPUT"
             echo "storage_key_prefix=$BRANCH_SLUG" >> "$GITHUB_OUTPUT"
           fi
 
@@ -139,22 +139,22 @@ jobs:
         if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != ''
         working-directory: packages/app
         env:
-          ASSETS_BUCKET: ${{ steps.branch.outputs.assets_bucket }}
-          UPLOADS_BUCKET: ${{ steps.branch.outputs.uploads_bucket }}
+          PUBLIC_BUCKET: ${{ steps.branch.outputs.public_bucket }}
+          PRIVATE_BUCKET: ${{ steps.branch.outputs.private_bucket }}
           IS_PREVIEW: ${{ github.ref_name != 'main' || github.event_name != 'push' }}
         run: |
-          pnpm exec wrangler r2 bucket create "$ASSETS_BUCKET" || true
-          pnpm exec wrangler r2 bucket create "$UPLOADS_BUCKET" || true
+          pnpm exec wrangler r2 bucket create "$PUBLIC_BUCKET" || true
+          pnpm exec wrangler r2 bucket create "$PRIVATE_BUCKET" || true
 
           # Auto-expire preview objects after 7 days so stale PR data
           # doesn't accumulate. Staging buckets get no lifecycle rule.
           if [ "$IS_PREVIEW" = "true" ]; then
-            for BUCKET in "$ASSETS_BUCKET" "$UPLOADS_BUCKET"; do
+            for BUCKET in "$PUBLIC_BUCKET" "$PRIVATE_BUCKET"; do
               pnpm exec wrangler r2 bucket lifecycle add "$BUCKET" preview-ttl --expire-days 7 --force || true
             done
           fi
 
-          jq --arg assets "$ASSETS_BUCKET" --arg uploads "$UPLOADS_BUCKET" \
+          jq --arg assets "$PUBLIC_BUCKET" --arg uploads "$PRIVATE_BUCKET" \
             '.r2_buckets[0].bucket_name = $assets |
              .r2_buckets[0].preview_bucket_name = $assets |
              .r2_buckets[1].bucket_name = $uploads |

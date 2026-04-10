@@ -15,10 +15,10 @@
  *   4. Mount a route file for it in `api/v1/index.ts`.
  */
 export const BUCKETS = {
-  /** Publicly readable assets — product images, avatars, post images, … */
-  assets: { public: true },
+  /** Publicly readable content — product images, avatars, post images, … */
+  public: { public: true },
   /** Private user content — message attachments, admin documents, … */
-  uploads: { public: false },
+  private: { public: false },
 } as const;
 
 export type BucketName = keyof typeof BUCKETS;
@@ -33,7 +33,7 @@ function typedKeys<TObject extends object>(obj: TObject): (keyof TObject)[] {
   return Object.keys(obj) as (keyof TObject)[];
 }
 
-export const BUCKET_NAMES: readonly BucketName[] = typedKeys(BUCKETS);
+export const BUCKET_NAMES = typedKeys(BUCKETS);
 
 export const PUBLIC_BUCKETS: readonly BucketName[] = BUCKET_NAMES.filter(
   (name) => BUCKETS[name].public,
