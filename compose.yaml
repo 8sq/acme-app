@@ -20,6 +20,12 @@ x-app: &app
     S3_BUCKET_PUBLIC: "${S3_BUCKET_PUBLIC:-acme-public}"
     S3_BUCKET_PRIVATE: "${S3_BUCKET_PRIVATE:-acme-private}"
 
+    # Direct URL for the public bucket (R2 custom domain, CDN, etc.).
+    # Only needed when S3_ENDPOINT differs from the public serving URL
+    # (e.g., Cloudflare R2 where S3 API and public access use different domains).
+    # When empty, public files are served through the /media proxy.
+    STORAGE_URL_PUBLIC: "${STORAGE_URL_PUBLIC:-}"
+
     # ── Storage signing (optional) ──
     # HMAC key for signing private file URLs when S3 presigning is not
     # available.

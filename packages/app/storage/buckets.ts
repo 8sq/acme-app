@@ -22,8 +22,8 @@ export interface BucketConfig {
   r2Binding: (env: CfBindings) => R2Bucket | undefined;
   /** Returns the S3-compatible bucket name (from env or default). */
   s3BucketName: (env: CfBindings) => string;
-  /** Returns the direct public URL base, if configured. Returns null for private buckets. */
-  publicUrl: (env: CfBindings) => string | null;
+  /** Direct URL base for serving files. Null = use proxy. For public buckets, this is the CDN/R2 custom domain. */
+  baseUrl: (env: CfBindings) => string | null;
 }
 
 export const BUCKETS = {
@@ -33,8 +33,8 @@ export const BUCKETS = {
     r2Binding: (env: CfBindings) => env.STORAGE_PUBLIC,
     s3BucketName: (env: CfBindings) =>
       env.S3_BUCKET_PUBLIC ?? process.env.S3_BUCKET_PUBLIC ?? "acme-public",
-    publicUrl: (env: CfBindings) =>
-      env.STORAGE_PUBLIC_URL ?? process.env.STORAGE_PUBLIC_URL ?? null,
+    baseUrl: (env: CfBindings) =>
+      env.STORAGE_URL_PUBLIC ?? process.env.STORAGE_URL_PUBLIC ?? null,
   } satisfies BucketConfig,
   /** Private user content — message attachments, admin documents, … */
   private: {
@@ -42,7 +42,7 @@ export const BUCKETS = {
     r2Binding: (env: CfBindings) => env.STORAGE_PRIVATE,
     s3BucketName: (env: CfBindings) =>
       env.S3_BUCKET_PRIVATE ?? process.env.S3_BUCKET_PRIVATE ?? "acme-private",
-    publicUrl: () => null,
+    baseUrl: () => null,
   } satisfies BucketConfig,
 };
 

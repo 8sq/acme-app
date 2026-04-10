@@ -13,9 +13,10 @@ export interface CfBindings extends SentryBindings {
   DB?: D1Database;
   // KV namespace
   CACHE?: KVNamespace;
-  // R2 public bucket and URL
+  // R2 public bucket
   STORAGE_PUBLIC?: R2Bucket;
-  STORAGE_PUBLIC_URL?: string;
+  // Direct URL for the public bucket (R2 custom domain, CDN, etc.)
+  STORAGE_URL_PUBLIC?: string;
   // R2 private bucket
   STORAGE_PRIVATE?: R2Bucket;
   STORAGE_KEY_PREFIX?: string;

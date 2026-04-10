@@ -21,28 +21,31 @@ function hasS3Creds(env: AppEnv["Bindings"]): boolean {
 
 /**
  * True when the proxy must refuse to serve because a better access path
- * exists. Public bucket + direct URL → true. S3 creds available (any
- * bucket) → true (use presigned URLs). Otherwise → false.
+ * exists:
+ * - Any bucket with an explicit `baseUrl` → true
+ * - Private bucket with S3 creds → true (presigning available)
+ * - Public bucket with S3 creds but no `baseUrl` → false (S3 endpoint
+ *   may not serve anonymous reads, e.g., R2)
  */
 export function isProxyDisabled(
   bucket: BucketName,
   env: AppEnv["Bindings"],
 ): boolean {
-  if (BUCKETS[bucket].publicUrl(env)) return true;
-  if (hasS3Creds(env)) return true;
+  if (BUCKETS[bucket].baseUrl(env)) return true;
+  if (!BUCKETS[bucket].public && hasS3Creds(env)) return true;
   return false;
 }
 
 /**
- * Returns a stable URL for a file. Public bucket with a direct URL
- * configured → that URL. Otherwise → the backend proxy path.
+ * Returns a stable URL for a file. Bucket with a `baseUrl` configured →
+ * direct URL. Otherwise → the backend proxy path.
  */
 export function urlFor(
   bucket: BucketName,
   env: AppEnv["Bindings"],
   key: string,
 ): string {
-  const base = BUCKETS[bucket].publicUrl(env);
+  const base = BUCKETS[bucket].baseUrl(env);
   if (base) return `${base.replace(/\/$/u, "")}/${key}`;
   return `/media/${bucket}/${key}`;
 }
