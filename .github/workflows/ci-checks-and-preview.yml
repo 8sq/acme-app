@@ -132,6 +132,25 @@ jobs:
             wrangler.json > wrangler.json.tmp
           mv wrangler.json.tmp wrangler.json
 
+      - name: Setup R2 bindings
+        if: >-
+          env.CLOUDFLARE_API_TOKEN != '' &&
+          env.CLOUDFLARE_ACCOUNT_ID != '' &&
+          vars.R2_BUCKET_PUBLIC != '' &&
+          vars.R2_BUCKET_PRIVATE != ''
+        working-directory: packages/app
+        env:
+          R2_BUCKET_PUBLIC: ${{ vars.R2_BUCKET_PUBLIC }}
+          R2_BUCKET_PRIVATE: ${{ vars.R2_BUCKET_PRIVATE }}
+        run: |
+          jq --arg pub "$R2_BUCKET_PUBLIC" --arg priv "$R2_BUCKET_PRIVATE" \
+            '.r2_buckets = [
+              {"binding": "STORAGE_PUBLIC", "bucket_name": $pub},
+              {"binding": "STORAGE_PRIVATE", "bucket_name": $priv}
+            ]' \
+            wrangler.json > wrangler.json.tmp
+          mv wrangler.json.tmp wrangler.json
+
       - name: Set runtime vars
         if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != ''
         working-directory: packages/app
@@ -141,20 +160,41 @@ jobs:
           SENTRY_DIST: ${{ steps.branch.outputs.sentry_dist }}
           STORAGE_KEY_PREFIX: ${{ steps.branch.outputs.storage_key_prefix }}
           STORAGE_SIGNING_KEY: ${{ github.repository }}
+          STORAGE_URL_PUBLIC: ${{ vars.STORAGE_URL_PUBLIC }}
           KV_STORAGE: ${{ github.ref_name != 'main' && 'CACHE' || '' }}
+          S3_ENDPOINT: ${{ secrets.S3_ENDPOINT }}
+          S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+          S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+          S3_REGION: ${{ vars.S3_REGION || 'auto' }}
+          S3_BUCKET_PUBLIC: ${{ vars.S3_BUCKET_PUBLIC }}
+          S3_BUCKET_PRIVATE: ${{ vars.S3_BUCKET_PRIVATE }}
         run: |
           jq --arg env "$SENTRY_ENVIRONMENT" \
             --arg rel "$SENTRY_RELEASE" \
             --arg dist "$SENTRY_DIST" \
             --arg prefix "$STORAGE_KEY_PREFIX" \
             --arg signing_key "$STORAGE_SIGNING_KEY" \
+            --arg storage_url_public "$STORAGE_URL_PUBLIC" \
             --arg kv_storage "$KV_STORAGE" \
+            --arg s3_endpoint "$S3_ENDPOINT" \
+            --arg s3_access_key_id "$S3_ACCESS_KEY_ID" \
+            --arg s3_secret_access_key "$S3_SECRET_ACCESS_KEY" \
+            --arg s3_region "$S3_REGION" \
+            --arg s3_bucket_public "$S3_BUCKET_PUBLIC" \
+            --arg s3_bucket_private "$S3_BUCKET_PRIVATE" \
             '.vars.SENTRY_ENVIRONMENT = $env |
              .vars.SENTRY_RELEASE = $rel |
              .vars.SENTRY_DIST = $dist |
              .vars.STORAGE_KEY_PREFIX = $prefix |
              .vars.STORAGE_SIGNING_KEY = $signing_key |
-             .vars.KV_STORAGE = $kv_storage' \
+             .vars.STORAGE_URL_PUBLIC = $storage_url_public |
+             .vars.KV_STORAGE = $kv_storage |
+             .vars.S3_ENDPOINT = $s3_endpoint |
+             .vars.S3_ACCESS_KEY_ID = $s3_access_key_id |
+             .vars.S3_SECRET_ACCESS_KEY = $s3_secret_access_key |
+             .vars.S3_REGION = $s3_region |
+             .vars.S3_BUCKET_PUBLIC = $s3_bucket_public |
+             .vars.S3_BUCKET_PRIVATE = $s3_bucket_private' \
             wrangler.json > wrangler.json.tmp
           mv wrangler.json.tmp wrangler.json
 

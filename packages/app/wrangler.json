@@ -19,17 +19,5 @@
       "database_id": "00000000-0000-0000-0000-000000000000",
       "migrations_dir": "db/migrations"
     }
-  ],
-  "r2_buckets": [
-    {
-      "binding": "STORAGE_PUBLIC",
-      "bucket_name": "acme-public",
-      "preview_bucket_name": "acme-public-preview"
-    },
-    {
-      "binding": "STORAGE_PRIVATE",
-      "bucket_name": "acme-private",
-      "preview_bucket_name": "acme-private-preview"
-    }
   ]
 }
