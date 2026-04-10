@@ -24,16 +24,26 @@ function readPublicUrlEnv(
   return urls[bucket];
 }
 
+function hasS3Creds(env: AppEnv["Bindings"]): boolean {
+  return Boolean(
+    (env.S3_ENDPOINT ?? process.env.S3_ENDPOINT) &&
+    (env.S3_ACCESS_KEY_ID ?? process.env.S3_ACCESS_KEY_ID) &&
+    (env.S3_SECRET_ACCESS_KEY ?? process.env.S3_SECRET_ACCESS_KEY),
+  );
+}
+
 /**
- * True iff the bucket is public AND has a configured direct URL. The proxy
- * GET handler uses this to hard-disable itself when a canonical direct URL
- * exists — there must never be two ways to read a public file.
+ * True when the proxy must refuse to serve because a better access path
+ * exists. Public bucket + direct URL → true. S3 creds available (any
+ * bucket) → true (use presigned URLs). Otherwise → false.
  */
-export function hasDirectPublicUrl(
+export function isProxyDisabled(
   bucket: BucketName,
   env: AppEnv["Bindings"],
 ): boolean {
-  return readPublicUrlEnv(bucket, env) !== undefined;
+  if (readPublicUrlEnv(bucket, env) !== undefined) return true;
+  if (hasS3Creds(env)) return true;
+  return false;
 }
 
 /**
@@ -64,14 +74,90 @@ function r2BindingFor(
   return bindings[bucket];
 }
 
-/** Per-bucket S3 bucket name. Exhaustive over `BucketName`. */
-function s3BucketNameFor(bucket: BucketName): string {
+/** Per-bucket S3 bucket name. Reads from env bindings (CF) or process.env (Node). */
+function s3BucketNameFor(bucket: BucketName, env?: AppEnv["Bindings"]): string {
   const bucketNames: Record<BucketName, string> = {
-    public: process.env.S3_BUCKET_PUBLIC ?? "acme-public",
-    private: process.env.S3_BUCKET_PRIVATE ?? "acme-private",
+    public:
+      env?.S3_BUCKET_PUBLIC ?? process.env.S3_BUCKET_PUBLIC ?? "acme-public",
+    private:
+      env?.S3_BUCKET_PRIVATE ?? process.env.S3_BUCKET_PRIVATE ?? "acme-private",
   };
   return bucketNames[bucket];
 }
+
+// ── Presigned URLs ──────────────────────────────────────────────────
+
+/** URL-safe base64 HMAC-SHA256. */
+export async function hmacSign(data: string, secret: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, encoder.encode(data));
+  return btoa(String.fromCodePoint(...new Uint8Array(sig)))
+    .replaceAll("+", "-")
+    .replaceAll("/", "_")
+    .replaceAll("=", "");
+}
+
+/**
+ * Returns the best available URL for accessing a file. Three tiers:
+ *
+ * 1. **S3 presigning** — `S3_*` creds set → signed URL direct to
+ *    R2/S3/MinIO. Worker never proxies bytes.
+ * 2. **HMAC app signing** — `STORAGE_SIGNING_KEY` set → signed proxy
+ *    URL with expiry. Worker proxies but validates the token.
+ * 3. **Plain proxy** — neither set → `/media/<bucket>/<key>` (dev
+ *    fallback, no expiry).
+ */
+export async function presignUrl(
+  bucket: BucketName,
+  env: AppEnv["Bindings"],
+  key: string,
+  ttlSeconds = 300,
+): Promise<string> {
+  // Tier 1: S3 presigning
+  const endpoint = env.S3_ENDPOINT ?? process.env.S3_ENDPOINT;
+  const accessKeyId = env.S3_ACCESS_KEY_ID ?? process.env.S3_ACCESS_KEY_ID;
+  const secretAccessKey =
+    env.S3_SECRET_ACCESS_KEY ?? process.env.S3_SECRET_ACCESS_KEY;
+  const region = env.S3_REGION ?? process.env.S3_REGION ?? "auto";
+
+  if (endpoint && accessKeyId && secretAccessKey) {
+    const { AwsClient } = await import("aws4fetch");
+    const bucketName = s3BucketNameFor(bucket, env);
+    const url = new URL(`/${bucketName}/${key}`, endpoint);
+    url.searchParams.set("X-Amz-Expires", String(ttlSeconds));
+    const client = new AwsClient({
+      accessKeyId,
+      secretAccessKey,
+      region,
+      service: "s3",
+    });
+    const signed = await client.sign(url.toString(), {
+      method: "GET",
+      aws: { signQuery: true },
+    });
+    return signed.url;
+  }
+
+  // Tier 2: HMAC app-level signing
+  const signingKey = env.STORAGE_SIGNING_KEY ?? process.env.STORAGE_SIGNING_KEY;
+  if (signingKey) {
+    const expires = Math.floor(Date.now() / 1000) + ttlSeconds;
+    const token = await hmacSign(`${bucket}:${key}:${expires}`, signingKey);
+    return `/media/${bucket}/${key}?expires=${expires}&token=${token}`;
+  }
+
+  // Tier 3: plain proxy URL (dev fallback)
+  return urlFor(bucket, env, key);
+}
+
+// ── Driver resolution ───────────────────────────────────────────────
 
 /**
  * Resolve the Cloudflare storage driver: R2 (requires billing) or KV

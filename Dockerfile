@@ -47,6 +47,7 @@ RUN pnpm install --prod
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV DATABASE_URL=file:///var/lib/acme/sqlite.db
+ENV STORAGE_SIGNING_KEY=acme-standalone-signing-key-replace-me
 
 EXPOSE 3000
 

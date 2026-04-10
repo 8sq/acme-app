@@ -2,6 +2,7 @@ x-app: &app
   build: .
   environment:
     DATABASE_URL: "http://sqld:8080"
+    STORAGE_SIGNING_KEY: "${STORAGE_SIGNING_KEY:?STORAGE_SIGNING_KEY required}"
   depends_on:
     sqld:
       condition: service_healthy

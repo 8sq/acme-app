@@ -170,17 +170,20 @@ jobs:
           SENTRY_RELEASE: ${{ steps.branch.outputs.sentry_release }}
           SENTRY_DIST: ${{ steps.branch.outputs.sentry_dist }}
           STORAGE_KEY_PREFIX: ${{ steps.branch.outputs.storage_key_prefix }}
+          STORAGE_SIGNING_KEY: ${{ github.repository }}
           KV_STORAGE: ${{ github.ref_name != 'main' && 'CACHE' || '' }}
         run: |
           jq --arg env "$SENTRY_ENVIRONMENT" \
             --arg rel "$SENTRY_RELEASE" \
             --arg dist "$SENTRY_DIST" \
             --arg prefix "$STORAGE_KEY_PREFIX" \
+            --arg signing_key "$STORAGE_SIGNING_KEY" \
             --arg kv_storage "$KV_STORAGE" \
             '.vars.SENTRY_ENVIRONMENT = $env |
              .vars.SENTRY_RELEASE = $rel |
              .vars.SENTRY_DIST = $dist |
              .vars.STORAGE_KEY_PREFIX = $prefix |
+             .vars.STORAGE_SIGNING_KEY = $signing_key |
              .vars.KV_STORAGE = $kv_storage' \
             wrangler.json > wrangler.json.tmp
           mv wrangler.json.tmp wrangler.json

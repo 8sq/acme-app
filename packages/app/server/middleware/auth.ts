@@ -1,20 +1,15 @@
 import { defineEventHandler } from "nitro/h3";
-import { PUBLIC_BUCKETS } from "../../storage/buckets";
 import type { CfBindings } from "../types";
-
-const publicBucketReads = PUBLIC_BUCKETS.map((name) => `/media/${name}/`);
 
 export default defineEventHandler((event) => {
   if (event.url.pathname === "/api/health") {
     return;
   }
 
-  // Public buckets: anonymous reads (GET/HEAD) allowed, writes still
-  // require auth.
-  if (
-    (event.req.method === "GET" || event.req.method === "HEAD") &&
-    publicBucketReads.some((prefix) => event.url.pathname.startsWith(prefix))
-  ) {
+  // Media routes handle their own access control: public buckets are
+  // open, private buckets use HMAC token verification or S3 presigned
+  // URLs. Basic auth should not interfere.
+  if (event.url.pathname.startsWith("/media/")) {
     return;
   }
 
