@@ -159,7 +159,6 @@ jobs:
           SENTRY_RELEASE: ${{ steps.branch.outputs.sentry_release }}
           SENTRY_DIST: ${{ steps.branch.outputs.sentry_dist }}
           STORAGE_KEY_PREFIX: ${{ steps.branch.outputs.storage_key_prefix }}
-          STORAGE_SIGNING_KEY: ${{ github.repository }}
           STORAGE_URL_PUBLIC: ${{ vars.STORAGE_URL_PUBLIC }}
           KV_STORAGE: ${{ github.ref_name != 'main' && 'CACHE' || '' }}
           S3_ENDPOINT: ${{ secrets.S3_ENDPOINT }}
@@ -168,7 +167,18 @@ jobs:
           S3_REGION: ${{ vars.S3_REGION || 'auto' }}
           S3_BUCKET_PUBLIC: ${{ vars.S3_BUCKET_PUBLIC }}
           S3_BUCKET_PRIVATE: ${{ vars.S3_BUCKET_PRIVATE }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BRANCH_SLUG: ${{ steps.branch.outputs.branch_slug }}
         run: |
+          # Auto-disable HMAC when S3 presigning is available.
+          # When S3_ENDPOINT is set, the app uses S3 presigned URLs directly.
+          # Otherwise, generate a stable per-deployment HMAC signing key.
+          if [ -n "$S3_ENDPOINT" ]; then
+            STORAGE_SIGNING_KEY=""
+          else
+            STORAGE_SIGNING_KEY="${GITHUB_REPOSITORY}:${PR_NUMBER:-main}:${BRANCH_SLUG}"
+          fi
+
           jq --arg env "$SENTRY_ENVIRONMENT" \
             --arg rel "$SENTRY_RELEASE" \
             --arg dist "$SENTRY_DIST" \
