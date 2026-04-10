@@ -29,7 +29,7 @@ implementation specifics — in user-facing error messages.
 ## Code Style
 
 oxfmt handles all formatting. This is enforced by a pre-commit
-hook and in CI — do not bypass it.
+hook and in CI.
 
 Always use braced blocks:
 
@@ -46,4 +46,35 @@ if (x) {
 When writing comments, keep whole sentences on a single line where
 possible. Stay within 80 characters per line.
 
+```ts
+// wrong — sentence split across lines for no reason
+// Resolve the user's preferred locale
+// from the request headers. Request must be
+// a Hono request.
+const locale = resolveLocale(request);
+
+// right — one sentence, one line
+// Resolve the user's preferred locale from the request headers.
+// Request must be a Hono request.
+const locale = resolveLocale(request);
+```
+
 Group related statements into blocks separated by empty lines.
+
+```ts
+// wrong — wall of unrelated statements
+const user = await getUser(id);
+const locale = resolveLocale(request);
+const posts = await listPosts(user.id);
+const formatted = posts.map((post) => formatPost(post, locale));
+response.json(formatted);
+
+// right — grouped by concern
+const user = await getUser(id);
+const locale = resolveLocale(request);
+
+const posts = await listPosts(user.id);
+const formatted = posts.map((post) => formatPost(post, locale));
+
+response.json(formatted);
+```
