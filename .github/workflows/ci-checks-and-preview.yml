@@ -126,6 +126,7 @@ jobs:
             KV_ID=$(pnpm exec wrangler kv namespace list | jq -r ".[] | select(.title == \"$KV_NAME\") | .id")
           fi
 
+          echo "Updating wrangler.json with KV namespace $KV_NAME (ID: $KV_ID)"
           jq --arg kv_id "$KV_ID" \
             '.kv_namespaces[0].id = $kv_id' \
             wrangler.json > wrangler.json.tmp

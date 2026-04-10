@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
-import type { AppEnv } from "../db/types";
+import type { AppEnv } from "../server/types";
 import { resolveDatabase } from "../db";
 
 const health = new Hono<AppEnv>();

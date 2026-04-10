@@ -23,9 +23,12 @@
     "@libsql/client": "catalog:",
     "aws4fetch": "catalog:",
     "drizzle-orm": "catalog:",
+    "drizzle-zod": "catalog:",
     "hono": "catalog:",
+    "iovalkey": "catalog:",
     "unstorage": "catalog:",
-    "uuid": "catalog:"
+    "uuid": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@acme/tsconfig": "workspace:*",

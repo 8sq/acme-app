@@ -2,9 +2,12 @@ x-app: &app
   build: .
   environment:
     DATABASE_URL: "http://sqld:8080"
+    CACHE_URL: "redis://valkey:6379"
     STORAGE_SIGNING_KEY: "${STORAGE_SIGNING_KEY:?STORAGE_SIGNING_KEY required}"
   depends_on:
     sqld:
+      condition: service_healthy
+    valkey:
       condition: service_healthy
 
 services:
@@ -20,6 +23,8 @@ services:
       - "3000:3000"
     depends_on:
       sqld:
+        condition: service_healthy
+      valkey:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
@@ -41,5 +46,19 @@ services:
       start_period: 5s
     restart: unless-stopped
 
+  valkey:
+    image: valkey/valkey:9-alpine
+    command: ["valkey-server", "--appendonly", "yes"]
+    volumes:
+      - valkey-data:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
 volumes:
   sqld-data:
+  valkey-data:

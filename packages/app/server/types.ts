@@ -4,6 +4,9 @@ import type {
   KVNamespace,
   R2Bucket,
 } from "@cloudflare/workers-types";
+import type { Cache } from "../cache/types";
+import type { Database } from "../db/types";
+import type { Buckets } from "../storage/types";
 
 export interface CfBindings extends SentryBindings {
   // Database namespace
@@ -30,4 +33,13 @@ export interface CfBindings extends SentryBindings {
   KV_STORAGE?: string;
   // Optional basic auth credentials in the format "username:password"
   BASIC_AUTH_CREDENTIALS?: string;
+}
+
+export interface AppEnv {
+  Bindings: CfBindings;
+  Variables: {
+    db: Database;
+    cache: Cache;
+    storage: Buckets;
+  };
 }

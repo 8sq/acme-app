@@ -1,6 +1,6 @@
 import { sentryHonoErrorHandler, sentryTunnelRoute } from "@acme/sentry/api";
 import { Hono } from "hono";
-import type { AppEnv } from "../db/types";
+import type { AppEnv } from "../server/types";
 import health from "./health";
 import v1 from "./v1";
 

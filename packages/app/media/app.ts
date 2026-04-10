@@ -1,7 +1,7 @@
 import { sentryHonoErrorHandler } from "@acme/sentry/api";
 import { type Context, Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
-import type { AppEnv } from "../db/types";
+import type { AppEnv } from "../server/types";
 import { hmacSign, isProxyDisabled, storageMiddleware } from "../storage";
 import { BUCKET_NAMES, BUCKETS, type BucketName } from "../storage/buckets";
 import { type FileMeta, metaKey } from "../storage/helpers";

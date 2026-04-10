@@ -2,7 +2,7 @@ import type { KVNamespace, R2Bucket } from "@cloudflare/workers-types";
 import { getRuntimeKey } from "hono/adapter";
 import { createMiddleware } from "hono/factory";
 import { createStorage, prefixStorage } from "unstorage";
-import type { AppEnv } from "../db/types";
+import type { AppEnv } from "../server/types";
 import type { BucketName } from "./buckets";
 import type { Buckets, Storage } from "./types";
 
