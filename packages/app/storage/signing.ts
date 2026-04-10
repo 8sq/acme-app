@@ -90,11 +90,10 @@ async function s3Presign(
 export async function verifyHmacToken(
   bucket: BucketName,
   key: string,
-  query: { expires?: string; token?: string },
+  expires: string | undefined,
+  token: string | undefined,
   signingKey: string,
 ): Promise<void> {
-  const { expires, token } = query;
-
   if (!expires || !token) {
     throw new HTTPException(403, { message: "missing signed URL token" });
   }

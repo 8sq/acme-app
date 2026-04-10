@@ -23,21 +23,19 @@ function buildGetHandler(bucket: BucketName) {
     const key = context.req.param("key");
     if (!key) throw new HTTPException(400, { message: "missing key" });
 
-    // Private buckets with a signing key require a valid HMAC token.
+    // Private buckets require a valid HMAC token.
     if (!BUCKETS[bucket].public) {
       const signingKey =
         context.env.STORAGE_SIGNING_KEY ?? process.env.STORAGE_SIGNING_KEY;
-      if (signingKey) {
-        await verifyHmacToken(
-          bucket,
-          key,
-          {
-            expires: context.req.query("expires"),
-            token: context.req.query("token"),
-          },
-          signingKey,
-        );
+      if (!signingKey) {
+        throw new HTTPException(503, {
+          message: "private storage access is not configured",
+        });
       }
+
+      const expires = context.req.query("expires");
+      const token = context.req.query("token");
+      await verifyHmacToken(bucket, key, expires, token, signingKey);
     }
 
     const storage = context.var.storage[bucket];
