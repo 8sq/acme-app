@@ -72,7 +72,8 @@ jobs:
           echo "owner_slug=$OWNER_SLUG" >> "$GITHUB_OUTPUT"
 
           VERSION=$(jq -r .version package.json)
-          SHORT_SHA=${GITHUB_SHA::7}
+          REAL_SHA=${{ github.event.pull_request.head.sha || github.sha }}
+          SHORT_SHA=${REAL_SHA::7}
           SENTRY_ENV=${{ github.event_name == 'push' && 'staging' || 'preview' }}
 
           echo "branch_slug=$BRANCH_SLUG" >> "$GITHUB_OUTPUT"
@@ -180,7 +181,8 @@ jobs:
         run: |
           pnpm exec wrangler pages deploy dist \
             --project-name="$PROJECT_SLUG-staging" \
-            --branch="$BRANCH"
+            --branch="$BRANCH" \
+            --commit-dirty=true
 
           if [[ ! -s "$WRANGLER_OUTPUT_FILE_PATH" ]]; then
             echo "::error::wrangler did not write structured output to $WRANGLER_OUTPUT_FILE_PATH (env var unsupported by this wrangler version?)" >&2
