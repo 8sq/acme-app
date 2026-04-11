@@ -8,7 +8,6 @@ import {
   verifyHmacToken,
 } from "../storage";
 import { BUCKET_NAMES, BUCKETS, type BucketName } from "../storage/buckets";
-import { type FileMeta, metaKey } from "../storage/helpers";
 
 function buildGetHandler(bucket: BucketName) {
   return async (context: Context<AppEnv>) => {
@@ -22,6 +21,11 @@ function buildGetHandler(bucket: BucketName) {
 
     const key = context.req.param("key");
     if (!key) throw new HTTPException(400, { message: "missing key" });
+
+    // Block access to metadata sidecar keys (unstorage's $ suffix).
+    if (key.endsWith("$")) {
+      throw new HTTPException(404, { message: "file not found" });
+    }
 
     // Private buckets require a valid HMAC token.
     if (!BUCKETS[bucket].public) {
@@ -41,9 +45,12 @@ function buildGetHandler(bucket: BucketName) {
     const data = await storage.getItemRaw<Uint8Array>(key);
     if (!data) throw new HTTPException(404, { message: "file not found" });
 
-    const meta = await storage.getItem<FileMeta>(metaKey(key));
+    const meta = await storage.getMeta(key);
     const headers = new Headers({
-      "Content-Type": meta?.contentType ?? "application/octet-stream",
+      "Content-Type":
+        typeof meta.contentType === "string"
+          ? meta.contentType
+          : "application/octet-stream",
       "Content-Length": String(data.byteLength),
     });
     if (BUCKETS[bucket].public) {

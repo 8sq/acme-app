@@ -3,7 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import type { AppEnv } from "../../server/types";
 import { presignUrl, urlFor } from "../../storage";
 import type { BucketName } from "../../storage/buckets";
-import { type FileMeta, metaKey, storeFile } from "../../storage/helpers";
+import { storeFile } from "../../storage/helpers";
 
 const TEST_KEY = "test-image";
 
@@ -18,9 +18,7 @@ export default testUpload
     const bucket = parseBucket(context.req.query("bucket"));
     const storage = context.var.storage[bucket];
     const exists = await storage.hasItem(TEST_KEY);
-    const meta = exists
-      ? await storage.getItem<FileMeta>(metaKey(TEST_KEY))
-      : null;
+    const meta = exists ? await storage.getMeta(TEST_KEY) : null;
 
     let url: string | null = null;
     if (exists) {
@@ -34,7 +32,7 @@ export default testUpload
       exists,
       bucket,
       url,
-      uploadedAt: meta?.uploadedAt ?? null,
+      uploadedAt: typeof meta?.uploadedAt === "string" ? meta.uploadedAt : null,
     });
   })
   .post("/", async (context) => {

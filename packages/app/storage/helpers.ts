@@ -14,8 +14,6 @@ export interface FileMeta {
   uploadedAt: string;
 }
 
-export const metaKey = (key: string) => `meta:${key}`;
-
 /** UUID v7 key (time-sortable) with the original file extension preserved. */
 export function generateKey(filename: string): string {
   const dot = filename.lastIndexOf(".");
@@ -43,13 +41,13 @@ export async function storeFile(
   const key = options?.key ?? generateKey(file.name);
   const bytes = new Uint8Array(await file.arrayBuffer());
   await storage.setItemRaw(key, bytes);
-  await storage.setItem(metaKey(key), {
+  await storage.setMeta(key, {
     contentType: file.type || "application/octet-stream",
     size: file.size,
     originalName: file.name,
     uploadedAt: new Date().toISOString(),
     ...options?.meta,
-  } satisfies FileMeta);
+  });
 
   return { key };
 }
