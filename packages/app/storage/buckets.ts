@@ -37,6 +37,7 @@ export const BUCKETS = {
     baseUrl: (env: CfBindings) => env.STORAGE_URL_PUBLIC ?? null,
     keyPrefix: (env: CfBindings) => env.STORAGE_PREFIX_PUBLIC ?? null,
   } satisfies BucketConfig,
+
   /** Private user content — message attachments, admin documents, … */
   private: {
     public: false,
@@ -48,6 +49,4 @@ export const BUCKETS = {
 };
 
 export type BucketName = keyof typeof BUCKETS;
-
-// oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
 export const BUCKET_NAMES = Object.keys(BUCKETS) as BucketName[];

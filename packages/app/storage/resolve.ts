@@ -35,7 +35,6 @@ async function tryKV(
     return undefined;
   }
 
-  // oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
   const kvBinding = (env as Record<string, unknown>)[kvBindingName] as
     | KVNamespace
     | undefined;
@@ -128,7 +127,6 @@ export async function resolveStorage(env: Env): Promise<Buckets> {
       async (name) => [name, await resolveBucket(name, env)] as const,
     ),
   );
-  // oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
   return Object.fromEntries(entries) as Buckets;
 }
 

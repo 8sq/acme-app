@@ -18,7 +18,6 @@ const uploadTestImage = createServerFn({ method: "POST" }).handler(
   async ({ data }) => {
     const response = await fetch(await apiUrl("/api/v1/test-upload"), {
       method: "POST",
-      // oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
       body: data as unknown as FormData,
     });
 
@@ -43,7 +42,6 @@ export const Route = createFileRoute("/test-upload")({
   validateSearch: searchSchema,
   loader: async () => {
     const response = await fetch(await apiUrl("/api/v1/test-upload"));
-    // oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
     return response.json() as Promise<TestImageData>;
   },
   component: TestUpload,
@@ -84,7 +82,7 @@ function TestUpload() {
 
       <h2>Upload</h2>
       <form
-        // oxlint-disable-next-line typescript-eslint/no-unsafe-member-access, typescript-eslint/no-unsafe-type-assertion
+        // oxlint-disable-next-line typescript-eslint/no-unsafe-member-access
         action={uploadTestImage.url}
         method="post"
         encType="multipart/form-data"
