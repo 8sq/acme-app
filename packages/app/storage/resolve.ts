@@ -26,8 +26,14 @@ async function tryKV(
   bucket: BucketName,
   env: Env,
 ): Promise<Storage | undefined> {
+  if (getRuntimeKey() !== "workerd") {
+    return undefined;
+  }
+
   const kvBindingName = env.KV_STORAGE;
-  if (!kvBindingName) return undefined;
+  if (!kvBindingName) {
+    return undefined;
+  }
 
   // oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
   const kvBinding = (env as Record<string, unknown>)[kvBindingName] as
