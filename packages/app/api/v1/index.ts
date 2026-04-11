@@ -28,7 +28,7 @@ export default v1
   .get("/posts", async (context) => {
     const cache = context.var.cache;
     const cached = await cache.get(POSTS_CACHE_KEY);
-    if (cached !== null) {
+    if (cached !== undefined) {
       // Any failure here (invalid JSON, schema drift) is reported to Sentry
       // and falls through silently to a refresh from the database.
       try {
