@@ -132,6 +132,8 @@ export async function verifyHmacToken(
 /**
  * Returns the best available URL for accessing a file:
  *
+ * 0. **Direct URL** — bucket has a `baseUrl` → return it (no signing
+ *    needed, the URL is publicly reachable).
  * 1. **HMAC** — `STORAGE_SIGNING_KEY` set → signed proxy URL.
  * 2. **S3 presigning** — `S3_*` creds set → signed direct URL.
  * 3. **Plain proxy** — public buckets get the proxy path; private
@@ -143,6 +145,10 @@ export async function presignUrl(
   key: string,
   ttlSeconds = 300,
 ): Promise<string> {
+  // If the bucket has a direct URL, use it — the proxy would 404 anyway.
+  const directUrl = BUCKETS[bucket].baseUrl(env);
+  if (directUrl) return `${directUrl.replace(/\/$/u, "")}/${key}`;
+
   const signingKey = env.STORAGE_SIGNING_KEY;
   if (signingKey) {
     const expires = Math.floor(Date.now() / 1000) + ttlSeconds;
