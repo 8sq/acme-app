@@ -1,35 +1,57 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import type { AppEnv } from "../../server/types";
-import { urlFor } from "../../storage";
+import { presignUrl, urlFor } from "../../storage";
+import type { BucketName } from "../../storage/buckets";
 import { type FileMeta, metaKey, storeFile } from "../../storage/helpers";
 
 const TEST_KEY = "test-image";
+
+function parseBucket(value: unknown): BucketName {
+  return value === "private" ? "private" : "public";
+}
 
 const testUpload = new Hono<AppEnv>();
 
 export default testUpload
   .get("/", async (context) => {
-    const storage = context.var.storage.public;
+    const bucket = parseBucket(context.req.query("bucket"));
+    const storage = context.var.storage[bucket];
     const exists = await storage.hasItem(TEST_KEY);
     const meta = exists
       ? await storage.getItem<FileMeta>(metaKey(TEST_KEY))
       : null;
+
+    let url: string | null = null;
+    if (exists) {
+      url =
+        bucket === "private"
+          ? await presignUrl(bucket, context.env, TEST_KEY)
+          : urlFor(bucket, context.env, TEST_KEY);
+    }
+
     return context.json({
       exists,
-      url: exists ? urlFor("public", context.env, TEST_KEY) : null,
+      bucket,
+      url,
       uploadedAt: meta?.uploadedAt ?? null,
     });
   })
   .post("/", async (context) => {
     const body = await context.req.parseBody();
     const file = body.file;
+    const bucket = parseBucket(body.bucket);
     if (!(file instanceof File)) {
       throw new HTTPException(400, { message: "missing file" });
     }
 
-    const { key } = await storeFile(context.var.storage.public, file, {
+    const { key } = await storeFile(context.var.storage[bucket], file, {
       key: TEST_KEY,
     });
-    return context.json({ url: urlFor("public", context.env, key) });
+
+    const url =
+      bucket === "private"
+        ? await presignUrl(bucket, context.env, key)
+        : urlFor(bucket, context.env, key);
+    return context.json({ bucket, url });
   });
