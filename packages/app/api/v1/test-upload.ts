@@ -2,10 +2,9 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import type { AppEnv } from "../../server/types";
 import { storageMiddleware, urlFor } from "../../storage";
-import { metaKey } from "../../storage/helpers";
+import { MAX_UPLOAD_BYTES, metaKey } from "../../storage/helpers";
 
 const TEST_KEY = "test-image";
-const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 
 const testUpload = new Hono<AppEnv>();
 
