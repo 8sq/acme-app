@@ -1,7 +1,7 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { apiUrl } from "../api-client";
+import { apiFetch } from "../api-client";
 
 interface TestImageData {
   exists: boolean;
@@ -22,7 +22,7 @@ const uploadTestImage = createServerFn({ method: "POST" }).handler(
     const formData = data as unknown as FormData;
     const bucket = formData.get("bucket") ?? "public";
 
-    const response = await fetch(await apiUrl("/api/v1/test-upload"), {
+    const response = await apiFetch("/api/v1/test-upload", {
       method: "POST",
       body: formData,
     });
@@ -52,8 +52,8 @@ export const Route = createFileRoute("/test-upload")({
   validateSearch: searchSchema,
   loaderDeps: ({ search }) => ({ bucket: search.bucket }),
   loader: async ({ deps }) => {
-    const response = await fetch(
-      await apiUrl(`/api/v1/test-upload?bucket=${deps.bucket}`),
+    const response = await apiFetch(
+      `/api/v1/test-upload?bucket=${deps.bucket}`,
     );
     return response.json() as Promise<TestImageData>;
   },
