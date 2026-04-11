@@ -72,7 +72,8 @@ jobs:
           echo "owner_slug=$OWNER_SLUG" >> "$GITHUB_OUTPUT"
 
           VERSION=$(jq -r .version package.json)
-          SHORT_SHA=${GITHUB_SHA::7}
+          REAL_SHA=${{ github.event.pull_request.head.sha || github.sha }}
+          SHORT_SHA=${REAL_SHA::7}
           SENTRY_ENV=${{ github.event_name == 'push' && 'staging' || 'preview' }}
 
           echo "branch_slug=$BRANCH_SLUG" >> "$GITHUB_OUTPUT"

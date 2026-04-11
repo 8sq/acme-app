@@ -66,7 +66,7 @@ export function sentryPlugin(): PluginOption {
       release: {
         name: env.SENTRY_RELEASE,
         dist: env.SENTRY_DIST,
-        setCommits: { auto: true },
+        setCommits: { auto: true, commitDirty: true },
       },
       sourcemaps: {
         filesToDeleteAfterUpload: ["./dist/**/*.map"],
