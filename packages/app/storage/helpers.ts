@@ -17,6 +17,7 @@ export const metaKey = (key: string) => `meta:${key}`;
 /** UUID v7 key (time-sortable) with the original file extension preserved. */
 export function generateKey(filename: string): string {
   const dot = filename.lastIndexOf(".");
-  const ext = dot > 0 ? filename.slice(dot) : "";
+  const rawExt = dot > 0 ? filename.slice(dot) : "";
+  const ext = rawExt.replaceAll(/[^a-zA-Z0-9.]/gu, "");
   return `${uuidv7()}${ext}`;
 }
