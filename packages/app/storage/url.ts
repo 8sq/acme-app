@@ -58,8 +58,10 @@ export function urlFor(
   env: AppEnv["Bindings"],
   key: string,
 ): string {
-  const resolved = storageKey(bucket, env, key);
   const base = BUCKETS[bucket].baseUrl(env);
-  if (base) return `${base.replace(/\/$/u, "")}/${resolved}`;
-  return `/media/${bucket}/${resolved}`;
+  // Direct URL needs the full prefixed key (bypasses proxy → hits bucket).
+  // Proxy URL uses the raw key (prefixStorage adds the prefix on read).
+  if (base)
+    return `${base.replace(/\/$/u, "")}/${storageKey(bucket, env, key)}`;
+  return `/media/${bucket}/${key}`;
 }

@@ -145,6 +145,8 @@ export async function presignUrl(
   key: string,
   ttlSeconds = 300,
 ): Promise<string> {
+  // Direct/S3 URLs need the full prefixed key (bypass proxy → hit bucket).
+  // HMAC proxy URLs use the raw key (prefixStorage adds prefix on read).
   const resolved = storageKey(bucket, env, key);
 
   // If the bucket has a direct URL, use it — the proxy would 404 anyway.
@@ -154,11 +156,8 @@ export async function presignUrl(
   const signingKey = env.STORAGE_SIGNING_KEY;
   if (signingKey) {
     const expires = Math.floor(Date.now() / 1000) + ttlSeconds;
-    const token = await hmacSign(
-      `${bucket}:${resolved}:${expires}`,
-      signingKey,
-    );
-    return `/media/${bucket}/${resolved}?expires=${expires}&token=${token}`;
+    const token = await hmacSign(`${bucket}:${key}:${expires}`, signingKey);
+    return `/media/${bucket}/${key}?expires=${expires}&token=${token}`;
   }
 
   const s3Url = await s3Presign(bucket, env, resolved, ttlSeconds);
