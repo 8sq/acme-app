@@ -5,13 +5,6 @@ export default defineEventHandler((event) => {
     return;
   }
 
-  // Media routes handle their own access control: public buckets are
-  // open, private buckets use HMAC token verification or S3 presigned
-  // URLs. Basic auth should not interfere.
-  if (event.url.pathname.startsWith("/media/")) {
-    return;
-  }
-
   const credentials = event.context.env.BASIC_AUTH_CREDENTIALS;
 
   if (!credentials || credentials.trim() === "") {
