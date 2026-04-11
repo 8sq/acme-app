@@ -83,8 +83,9 @@ async function s3Presign(
 }
 
 /**
- * Constant-time string comparison to prevent timing attacks.
- * Always compares all bytes regardless of where the first mismatch occurs.
+ * Constant-time string comparison for equal-length inputs to prevent
+ * timing attacks. Returns early on length mismatch (acceptable for
+ * HMAC tokens where the expected length is publicly known).
  */
 function timingSafeEqual(expected: string, actual: string): boolean {
   const encoder = new TextEncoder();
@@ -151,7 +152,9 @@ export async function presignUrl(
 
   // If the bucket has a direct URL, use it — the proxy would 404 anyway.
   const directUrl = BUCKETS[bucket].baseUrl(env);
-  if (directUrl) return `${directUrl.replace(/\/$/u, "")}/${resolved}`;
+  if (directUrl) {
+    return `${directUrl.replace(/\/$/u, "")}/${resolved}`;
+  }
 
   const signingKey = env.STORAGE_SIGNING_KEY;
   if (signingKey) {
@@ -161,9 +164,13 @@ export async function presignUrl(
   }
 
   const s3Url = await s3Presign(bucket, env, resolved, ttlSeconds);
-  if (s3Url) return s3Url;
+  if (s3Url) {
+    return s3Url;
+  }
 
-  if (BUCKETS[bucket].public) return urlFor(bucket, env, key);
+  if (BUCKETS[bucket].public) {
+    return urlFor(bucket, env, key);
+  }
 
   throw new HTTPException(503, {
     message: "private storage access is not configured",
