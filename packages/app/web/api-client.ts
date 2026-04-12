@@ -11,14 +11,14 @@ const FORWARDED_HEADERS = [
  * Fetch wrapper for internal API calls.
  *
  * - **Client**: plain `fetch` with relative path (browser handles auth).
- * - **Server (SSR)**: Nitro's global `fetch` intercepts paths starting
- *   with `/` and routes them internally (no HTTP round-trip). Auth
- *   headers are forwarded from the original request.
+ * - **Server (SSR)**: fetches against the request origin with
+ *   auth-related headers forwarded from the original request.
  */
 export const apiFetch = createIsomorphicFn()
   .client((path: string, init?: RequestInit) => fetch(path, init))
   .server(async (path: string, init?: RequestInit) => {
-    const { getRequestHeaders } = await import("@tanstack/react-start/server");
+    const { getRequestHeaders, getRequestUrl } =
+      await import("@tanstack/react-start/server");
 
     // Forward selected headers from the incoming request to preserve auth
     const incoming = new Headers(getRequestHeaders() as HeadersInit);
@@ -30,5 +30,6 @@ export const apiFetch = createIsomorphicFn()
       }
     }
 
-    return fetch(path, { ...init, headers });
+    const origin = new URL(getRequestUrl()).origin;
+    return fetch(`${origin}${path}`, { ...init, headers });
   });
