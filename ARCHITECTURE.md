@@ -34,9 +34,9 @@ packages/
       buckets.ts     # Bucket registry (single source of truth)
       types.ts       # Storage + Buckets type exports
       resolve.ts     # Driver resolution + storageMiddleware
-      url.ts         # urlFor(), isProxyDisabled()
+      url.ts         # urlFor(), storageKey(), isProxyDisabled()
       signing.ts     # HMAC signing, S3 presigning, presignUrl()
-      helpers.ts     # generateKey(), storeFile(), FileMeta
+      helpers.ts     # generateKey(), storeFile(), FileMeta, MAX_UPLOAD_BYTES
     media/           # Read-only file-serving Hono app
       app.ts         # GET /media/<bucket>/:key
     server/          # Nitro glue (SSR + middleware)
@@ -52,7 +52,7 @@ packages/
         api/[...].ts    # Forwards /api/* to Hono API app
         media/[...].ts  # Forwards /media/* to Hono media app
     web/             # TanStack Start frontend
-      api-client.ts  # apiUrl() — isomorphic URL resolver
+      api-client.ts  # apiFetch() — isomorphic fetch with header forwarding
       routes/        # File-based routing
       router.tsx     # Router init + client Sentry setup
   sentry/            # @acme/sentry — extracted Sentry package
@@ -151,7 +151,8 @@ const url = urlFor("public", context.env, key);
 ```
 
 `storeFile()` validates size, generates a UUID v7 key with a
-sanitized extension, stores the raw bytes and metadata.
+sanitized extension, stores the raw bytes and metadata (via
+unstorage's `setMeta` — stored as a `key$` sidecar entry).
 
 ## Media Routes
 
@@ -170,6 +171,22 @@ The Hono app at `media/app.ts` serves files at
 - **Private buckets** require a valid HMAC token
   (`?expires=...&token=...`). Missing or expired tokens → 403.
   No signing key configured → 503.
+- **Metadata sidecar keys** (`key$`) are blocked — returns 404 to
+  prevent leaking file metadata through the proxy.
+
+## Internal API Calls (`apiFetch`)
+
+`web/api-client.ts` exports `apiFetch(path, init?)` — an isomorphic
+fetch wrapper built with `createIsomorphicFn`:
+
+- **Client**: plain `fetch` with relative path.
+- **Server (SSR)**: resolves the request origin via `getRequestUrl()`
+  and forwards `authorization`, `cookie`, `accept-language`, and
+  `x-forwarded-for` headers from the incoming request.
+
+Nitro's internal `serverFetch` can't be used from `web/` code
+(export conditions don't match the client/SSR build). The server
+path makes a real HTTP request to itself.
 
 ## URL Signing & Presigned URLs
 
@@ -190,6 +207,11 @@ URL for a file, checked in order:
 
 `urlFor()` returns a stable URL (for storing in the database):
 `baseUrl + key` if configured, otherwise `/media/<bucket>/<key>`.
+
+`storageKey()` resolves the full key including the bucket's prefix
+(unstorage `:` separator). Used by direct URLs and S3 presigned URLs
+that bypass the proxy and need the actual object key in the bucket.
+Proxy URLs use the raw key — `prefixStorage` adds the prefix on read.
 
 HMAC tokens use constant-time comparison to prevent timing attacks.
 
@@ -231,9 +253,11 @@ file access requires setting `STORAGE_SIGNING_KEY` via `-e`. Without
 it, private URLs return 503.
 
 **Docker Compose**: includes MinIO (S3-compatible) for storage.
-`STORAGE_SIGNING_KEY` is required (forces HMAC proxy since MinIO is
-internal). S3 credentials default to `acme`/`acme-secret-key` —
-override in `.env` for production.
+`STORAGE_SIGNING_KEY` is optional — when set, forces HMAC proxy for
+private files (since MinIO is internal and not reachable from the
+browser). When empty, S3 presigning is used instead. S3 credentials
+default to `acme`/`acme-secret-key` — override in `.env` for
+production.
 
 **Devcontainer**: sets a dummy `STORAGE_SIGNING_KEY` for development.
 
