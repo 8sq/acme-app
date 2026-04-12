@@ -7,20 +7,20 @@ settings:
 catalogs:
   default:
     '@cloudflare/workers-types':
-      specifier: 4.20260409.1
-      version: 4.20260409.1
+      specifier: 4.20260410.1
+      version: 4.20260410.1
     '@libsql/client':
       specifier: 0.17.2
       version: 0.17.2
     '@sentry/cloudflare':
-      specifier: 10.47.0
-      version: 10.47.0
+      specifier: 10.48.0
+      version: 10.48.0
     '@sentry/core':
-      specifier: 10.47.0
-      version: 10.47.0
+      specifier: 10.48.0
+      version: 10.48.0
     '@sentry/react':
-      specifier: 10.47.0
-      version: 10.47.0
+      specifier: 10.48.0
+      version: 10.48.0
     '@sentry/vite-plugin':
       specifier: 5.2.0
       version: 5.2.0
@@ -172,10 +172,10 @@ importers:
         version: 0.17.2
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.45.2(@cloudflare/workers-types@4.20260409.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1)
+        version: 0.45.2(@cloudflare/workers-types@4.20260410.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1)
       drizzle-zod:
         specifier: 'catalog:'
-        version: 0.8.3(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260409.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))(zod@4.3.6)
+        version: 0.8.3(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260410.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))(zod@4.3.6)
       hono:
         specifier: 'catalog:'
         version: 4.12.12
@@ -191,7 +191,7 @@ importers:
         version: link:../tsconfig
       '@cloudflare/workers-types':
         specifier: 'catalog:'
-        version: 4.20260409.1
+        version: 4.20260410.1
       '@tanstack/react-router':
         specifier: 'catalog:'
         version: 1.168.10(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -215,7 +215,7 @@ importers:
         version: 0.31.10
       nitro:
         specifier: 'catalog:'
-        version: 3.0.260311-beta(@libsql/client@0.17.2)(dotenv@16.6.1)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260409.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))(lru-cache@11.2.7)(miniflare@4.20260409.0)(rollup@4.60.1)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.5)(tsx@4.21.0))
+        version: 3.0.260311-beta(@libsql/client@0.17.2)(dotenv@16.6.1)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260410.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))(lru-cache@11.2.7)(miniflare@4.20260409.0)(rollup@4.60.1)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.5)(tsx@4.21.0))
       react:
         specifier: 'catalog:'
         version: 19.2.5
@@ -236,19 +236,19 @@ importers:
         version: 8.0.8(@types/node@24.12.2)(esbuild@0.27.5)(tsx@4.21.0)
       wrangler:
         specifier: 'catalog:'
-        version: 4.81.1(@cloudflare/workers-types@4.20260409.1)
+        version: 4.81.1(@cloudflare/workers-types@4.20260410.1)
 
   packages/sentry:
     dependencies:
       '@sentry/cloudflare':
         specifier: 'catalog:'
-        version: 10.47.0(@cloudflare/workers-types@4.20260409.1)
+        version: 10.48.0(@cloudflare/workers-types@4.20260410.1)
       '@sentry/core':
         specifier: 'catalog:'
-        version: 10.47.0
+        version: 10.48.0
       '@sentry/react':
         specifier: 'catalog:'
-        version: 10.47.0(react@19.2.5)
+        version: 10.48.0(react@19.2.5)
       '@sentry/vite-plugin':
         specifier: 'catalog:'
         version: 5.2.0(rollup@4.60.1)
@@ -258,7 +258,7 @@ importers:
         version: link:../tsconfig
       '@cloudflare/workers-types':
         specifier: 'catalog:'
-        version: 4.20260409.1
+        version: 4.20260410.1
       '@tanstack/react-router':
         specifier: 'catalog:'
         version: 1.168.10(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -279,7 +279,7 @@ importers:
         version: 4.12.12
       nitro:
         specifier: 'catalog:'
-        version: 3.0.260311-beta(@libsql/client@0.17.2)(dotenv@16.6.1)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260409.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))(lru-cache@11.2.7)(miniflare@4.20260409.0)(rollup@4.60.1)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.5)(tsx@4.21.0))
+        version: 3.0.260311-beta(@libsql/client@0.17.2)(dotenv@16.6.1)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260410.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))(lru-cache@11.2.7)(miniflare@4.20260409.0)(rollup@4.60.1)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.5)(tsx@4.21.0))
       react:
         specifier: 'catalog:'
         version: 19.2.5
@@ -512,8 +512,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@cloudflare/workers-types@4.20260409.1':
-    resolution: {integrity: sha512-0rGuppPeip6dqlI6013wC8tE+kbRK+tcaDfqCxKf9sEHDNfSWWUuKgIEDpt6IHHP2O0iYBQpngk5Siv4CL/HGQ==}
+  '@cloudflare/workers-types@4.20260410.1':
+    resolution: {integrity: sha512-dPZT4aXxwhGHFhWA9iZhWVfFoO8g9exiLzeaS8y43Dw0Sard6Gb3o5LJjReav3ejHbQLHUfGEiZsRPGW8qmgMg==}
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -2071,28 +2071,28 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@sentry-internal/browser-utils@10.47.0':
-    resolution: {integrity: sha512-bVFRAeJWMBcBCvJKIFCMJ1/yQToL4vPGqfmlnDZeypcxkqUDKQ/Y3ziLHXoDL2sx0lagcgU2vH1QhCQ67Aujjw==}
+  '@sentry-internal/browser-utils@10.48.0':
+    resolution: {integrity: sha512-SCiTLBXzugFKxev6NoKYBIhQoDk0gUh0AVVVepCBqfCJiWBG01Zvv0R5tCVohr4cWRllkQ8mlBdNQd/I7s9tdA==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/feedback@10.47.0':
-    resolution: {integrity: sha512-pdvMmi4dQpX5S/vAAzrhHPIw3T3HjUgDNgUiCBrlp7N9/6zGO2gNPhUnNekP+CjgI/z0rvf49RLqlDenpNrMOg==}
+  '@sentry-internal/feedback@10.48.0':
+    resolution: {integrity: sha512-tGkEyOM1HDS9qebDphUMEnyk3qq/50AnuTBiFmMJyjNzowylVGmRRk0sr3xkmbVHCDXQCiYnDmSVlJ2x4SDMrQ==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/replay-canvas@10.47.0':
-    resolution: {integrity: sha512-A5OY8friSe6g8WAK4L8IeOPiEd9D3Ps40DzRH5j2f6SUja0t90mKMvHRcRf8zq0d4BkdB+JM7tjOkwxpuv8heA==}
+  '@sentry-internal/replay-canvas@10.48.0':
+    resolution: {integrity: sha512-9nWuN2z4O+iwbTfuYV5ZmngBgJU/ZxfOo47A5RJP3Nu/kl59aJ1lUhILYOKyeNOIC/JyeERmpIcTxnlPXQzZ3Q==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/replay@10.47.0':
-    resolution: {integrity: sha512-ScdovxP7hJxgMt70+7hFvwT02GIaIUAxdEM/YPsayZBeCoAukPW8WiwztJfoKtsfPyKJ5A6f0H3PIxTPcA9Row==}
+  '@sentry-internal/replay@10.48.0':
+    resolution: {integrity: sha512-sevRTePfuk4PNuz9KAKpmTZEomAU0aLXyIhOwA0OnUDdxPhkY8kq5lwDbuxTHv6DQUjUX3YgFbY45VH1JEqHKA==}
     engines: {node: '>=18'}
 
   '@sentry/babel-plugin-component-annotate@5.2.0':
     resolution: {integrity: sha512-8LbOI5Kzb5F0+7LVQPi2+zGz1iPiRRFhM+7uZ/ZQ33L9BmDOYNIy3xWxCfMw2JCuMXXaxF47XCjGmR22/B0WPg==}
     engines: {node: '>= 18'}
 
-  '@sentry/browser@10.47.0':
-    resolution: {integrity: sha512-rC0agZdxKA5XWfL4VwPOr/rJMogXDqZgnVzr93YWpFn9DMZT/7LzxSJVPIJwRUjx3bFEby3PcTa3YaX7pxm1AA==}
+  '@sentry/browser@10.48.0':
+    resolution: {integrity: sha512-4jt2zX2ExgFcNe2x+W+/k81fmDUsOrquGtt028CiGuDuma6kEsWBI4JbooT1jhj2T+eeUxe3YGbM23Zhh7Ghhw==}
     engines: {node: '>=18'}
 
   '@sentry/bundler-plugin-core@5.2.0':
@@ -2151,8 +2151,8 @@ packages:
     engines: {node: '>= 10'}
     hasBin: true
 
-  '@sentry/cloudflare@10.47.0':
-    resolution: {integrity: sha512-R5noxsP8M/L0TKoaOr2UYNgDitruGxknJJ4kcxHyjA3cpvvqUnDiMG8+E4SDosVFCWizHv+uVKIrPjXx03ruLg==}
+  '@sentry/cloudflare@10.48.0':
+    resolution: {integrity: sha512-i02Ps4/cJjFpbcHLMhNEFXTeVqLB9XpB3+/OFQ9aMFV3yDcxlvHwe0oo7WZf41iroArvpysotLG8Y8NBOU9omA==}
     engines: {node: '>=18'}
     peerDependencies:
       '@cloudflare/workers-types': ^4.x
@@ -2160,12 +2160,12 @@ packages:
       '@cloudflare/workers-types':
         optional: true
 
-  '@sentry/core@10.47.0':
-    resolution: {integrity: sha512-nsYRAx3EWezDut+Zl+UwwP07thh9uY7CfSAi2whTdcJl5hu1nSp2z8bba7Vq/MGbNLnazkd3A+GITBEML924JA==}
+  '@sentry/core@10.48.0':
+    resolution: {integrity: sha512-h8F+fXVwYC9ro5ZaO8V+v3vqc0awlXHGblEAuVxSGgh4IV/oFX+QVzXeDTTrFOFS6v/Vn5vAyu240eJrJAS6/g==}
     engines: {node: '>=18'}
 
-  '@sentry/react@10.47.0':
-    resolution: {integrity: sha512-ZtJV6xxF8jUVE9e3YQUG3Do0XapG1GjniyLyqMPgN6cNvs/HaRJODf7m60By+VGqcl5XArEjEPTvx8CdPUXDfA==}
+  '@sentry/react@10.48.0':
+    resolution: {integrity: sha512-uc93vKjmu6gNns+JAX4qquuxWpAMit0uGPA1TYlMjct9NG1uX3TkDPJAr9Pgd1lOXx8mKqCmj5fK33QeExMpPw==}
     engines: {node: '>=18'}
     peerDependencies:
       react: ^16.14.0 || 17.x || 18.x || 19.x
@@ -4236,7 +4236,7 @@ snapshots:
   '@cloudflare/workerd-windows-64@1.20260409.1':
     optional: true
 
-  '@cloudflare/workers-types@4.20260409.1': {}
+  '@cloudflare/workers-types@4.20260410.1': {}
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
@@ -5158,33 +5158,33 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.60.1':
     optional: true
 
-  '@sentry-internal/browser-utils@10.47.0':
+  '@sentry-internal/browser-utils@10.48.0':
     dependencies:
-      '@sentry/core': 10.47.0
+      '@sentry/core': 10.48.0
 
-  '@sentry-internal/feedback@10.47.0':
+  '@sentry-internal/feedback@10.48.0':
     dependencies:
-      '@sentry/core': 10.47.0
+      '@sentry/core': 10.48.0
 
-  '@sentry-internal/replay-canvas@10.47.0':
+  '@sentry-internal/replay-canvas@10.48.0':
     dependencies:
-      '@sentry-internal/replay': 10.47.0
-      '@sentry/core': 10.47.0
+      '@sentry-internal/replay': 10.48.0
+      '@sentry/core': 10.48.0
 
-  '@sentry-internal/replay@10.47.0':
+  '@sentry-internal/replay@10.48.0':
     dependencies:
-      '@sentry-internal/browser-utils': 10.47.0
-      '@sentry/core': 10.47.0
+      '@sentry-internal/browser-utils': 10.48.0
+      '@sentry/core': 10.48.0
 
   '@sentry/babel-plugin-component-annotate@5.2.0': {}
 
-  '@sentry/browser@10.47.0':
+  '@sentry/browser@10.48.0':
     dependencies:
-      '@sentry-internal/browser-utils': 10.47.0
-      '@sentry-internal/feedback': 10.47.0
-      '@sentry-internal/replay': 10.47.0
-      '@sentry-internal/replay-canvas': 10.47.0
-      '@sentry/core': 10.47.0
+      '@sentry-internal/browser-utils': 10.48.0
+      '@sentry-internal/feedback': 10.48.0
+      '@sentry-internal/replay': 10.48.0
+      '@sentry-internal/replay-canvas': 10.48.0
+      '@sentry/core': 10.48.0
 
   '@sentry/bundler-plugin-core@5.2.0':
     dependencies:
@@ -5243,19 +5243,19 @@ snapshots:
       - encoding
       - supports-color
 
-  '@sentry/cloudflare@10.47.0(@cloudflare/workers-types@4.20260409.1)':
+  '@sentry/cloudflare@10.48.0(@cloudflare/workers-types@4.20260410.1)':
     dependencies:
       '@opentelemetry/api': 1.9.1
-      '@sentry/core': 10.47.0
+      '@sentry/core': 10.48.0
     optionalDependencies:
-      '@cloudflare/workers-types': 4.20260409.1
+      '@cloudflare/workers-types': 4.20260410.1
 
-  '@sentry/core@10.47.0': {}
+  '@sentry/core@10.48.0': {}
 
-  '@sentry/react@10.47.0(react@19.2.5)':
+  '@sentry/react@10.48.0(react@19.2.5)':
     dependencies:
-      '@sentry/browser': 10.47.0
-      '@sentry/core': 10.47.0
+      '@sentry/browser': 10.48.0
+      '@sentry/core': 10.48.0
       react: 19.2.5
 
   '@sentry/rollup-plugin@5.2.0(rollup@4.60.1)':
@@ -5958,10 +5958,10 @@ snapshots:
 
   data-uri-to-buffer@4.0.1: {}
 
-  db0@0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260409.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1)):
+  db0@0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260410.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1)):
     optionalDependencies:
       '@libsql/client': 0.17.2
-      drizzle-orm: 0.45.2(@cloudflare/workers-types@4.20260409.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1)
+      drizzle-orm: 0.45.2(@cloudflare/workers-types@4.20260410.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1)
 
   debug@4.4.3:
     dependencies:
@@ -6023,15 +6023,15 @@ snapshots:
       esbuild: 0.25.12
       tsx: 4.21.0
 
-  drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260409.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1):
+  drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260410.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1):
     optionalDependencies:
-      '@cloudflare/workers-types': 4.20260409.1
+      '@cloudflare/workers-types': 4.20260410.1
       '@libsql/client': 0.17.2
       '@opentelemetry/api': 1.9.1
 
-  drizzle-zod@0.8.3(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260409.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))(zod@4.3.6):
+  drizzle-zod@0.8.3(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260410.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))(zod@4.3.6):
     dependencies:
-      drizzle-orm: 0.45.2(@cloudflare/workers-types@4.20260409.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1)
+      drizzle-orm: 0.45.2(@cloudflare/workers-types@4.20260410.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1)
       zod: 4.3.6
 
   electron-to-chromium@1.5.331: {}
@@ -6485,11 +6485,11 @@ snapshots:
 
   nf3@0.3.14: {}
 
-  nitro@3.0.260311-beta(@libsql/client@0.17.2)(dotenv@16.6.1)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260409.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))(lru-cache@11.2.7)(miniflare@4.20260409.0)(rollup@4.60.1)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.5)(tsx@4.21.0)):
+  nitro@3.0.260311-beta(@libsql/client@0.17.2)(dotenv@16.6.1)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260410.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))(lru-cache@11.2.7)(miniflare@4.20260409.0)(rollup@4.60.1)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.5)(tsx@4.21.0)):
     dependencies:
       consola: 3.4.2
       crossws: 0.4.4(srvx@0.11.14)
-      db0: 0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260409.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))
+      db0: 0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260410.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))
       env-runner: 0.1.7(miniflare@4.20260409.0)
       h3: 2.0.1-rc.20(crossws@0.4.4(srvx@0.11.14))
       hookable: 6.1.0
@@ -6500,7 +6500,7 @@ snapshots:
       rolldown: 1.0.0-rc.13
       srvx: 0.11.14
       unenv: 2.0.0-rc.24
-      unstorage: 2.0.0-alpha.7(db0@0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260409.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1)))(lru-cache@11.2.7)(ofetch@2.0.0-alpha.3)
+      unstorage: 2.0.0-alpha.7(db0@0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260410.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1)))(lru-cache@11.2.7)(ofetch@2.0.0-alpha.3)
     optionalDependencies:
       dotenv: 16.6.1
       rollup: 4.60.1
@@ -7031,9 +7031,9 @@ snapshots:
       picomatch: 4.0.4
       webpack-virtual-modules: 0.6.2
 
-  unstorage@2.0.0-alpha.7(db0@0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260409.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1)))(lru-cache@11.2.7)(ofetch@2.0.0-alpha.3):
+  unstorage@2.0.0-alpha.7(db0@0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260410.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1)))(lru-cache@11.2.7)(ofetch@2.0.0-alpha.3):
     optionalDependencies:
-      db0: 0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260409.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))
+      db0: 0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260410.1)(@libsql/client@0.17.2)(@opentelemetry/api@1.9.1))
       lru-cache: 11.2.7
       ofetch: 2.0.0-alpha.3
 
@@ -7128,7 +7128,7 @@ snapshots:
       '@cloudflare/workerd-linux-arm64': 1.20260409.1
       '@cloudflare/workerd-windows-64': 1.20260409.1
 
-  wrangler@4.81.1(@cloudflare/workers-types@4.20260409.1):
+  wrangler@4.81.1(@cloudflare/workers-types@4.20260410.1):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.4.2
       '@cloudflare/unenv-preset': 2.16.0(unenv@2.0.0-rc.24)(workerd@1.20260409.1)
@@ -7139,7 +7139,7 @@ snapshots:
       unenv: 2.0.0-rc.24
       workerd: 1.20260409.1
     optionalDependencies:
-      '@cloudflare/workers-types': 4.20260409.1
+      '@cloudflare/workers-types': 4.20260410.1
       fsevents: 2.3.3
     transitivePeerDependencies:
       - bufferutil
