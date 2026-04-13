@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import remapping from "@jridgewell/remapping";
 import type { SourceMapInput } from "@jridgewell/remapping";
@@ -41,14 +41,12 @@ export function sourceMapsPlugin(): Plugin {
         }
 
         const composed = remapping(raw, (source, _ctx) => {
-          const sourcePath = resolve(dirname(mapPath), source);
-          try {
-            return JSON.parse(
-              readFileSync(sourcePath + ".map", "utf8"),
-            ) as SourceMapInput;
-          } catch {
+          const sourceMap = resolve(dirname(mapPath), source + ".map");
+          if (!existsSync(sourceMap)) {
             return null;
           }
+
+          return JSON.parse(readFileSync(sourceMap, "utf8")) as SourceMapInput;
         });
 
         writeFileSync(mapPath, JSON.stringify(composed));
