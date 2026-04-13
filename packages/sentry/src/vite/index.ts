@@ -1,5 +1,7 @@
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 import type { PluginOption } from "vite";
+import { buildConfigPlugin } from "./build-config.ts";
+import { debugIdsPlugin } from "./debug-ids.ts";
 
 /**
  * All-in-one Sentry Vite integration. Bundles three things together so the
@@ -28,45 +30,30 @@ import type { PluginOption } from "vite";
  * ```
  */
 
-/** Sourcemap mode: `"hidden"` when Sentry upload is enabled, `false` otherwise. */
-function sourcemapMode(): "hidden" | false {
-  return process.env.SENTRY_AUTH_TOKEN ? "hidden" : false;
-}
-
 // Mirror a value into process.env only when it's actually set. Assigning
 // `undefined` stringifies to the literal "undefined" — a truthy string that
 // would shadow the client-side `?? "development"` fallback.
 function mirror(target: string, value: string | undefined): void {
-  if (value) process.env[target] = value;
+  if (value) {
+    process.env[target] = value;
+  }
 }
 
 export function sentryPlugin(): PluginOption {
   const env = process.env;
 
   // Tell the client SDK that Sentry is configured, but DON'T copy the DSN
-  // itself — the dummy DSN + /api/sentry tunnel in @acme/sentry/client exists
-  // to keep the real DSN out of the public bundle.
+  // itself — the /api/sentry tunnel keeps the real DSN out of the bundle.
   mirror("VITE_SENTRY_ENABLED", env.SENTRY_DSN && "true");
   mirror("VITE_SENTRY_ENVIRONMENT", env.SENTRY_ENVIRONMENT);
   mirror("VITE_SENTRY_RELEASE", env.SENTRY_RELEASE);
   mirror("VITE_SENTRY_DIST", env.SENTRY_DIST);
 
   return [
-    {
-      name: "@acme/sentry/build-config",
-      // Hidden sourcemaps so they can be uploaded to Sentry but never
-      // referenced from production JS via `//# sourceMappingURL`.
-      config: () => ({ build: { sourcemap: sourcemapMode() } }),
-      // Nitro creates server environments with `build.sourcemap: false`,
-      // overriding the top-level config above. Re-apply here so server
-      // bundles also produce .map files for Sentry upload.
-      configEnvironment(_name, config) {
-        if (config.consumer === "server") {
-          config.build ??= {};
-          config.build.sourcemap = sourcemapMode();
-        }
-      },
-    },
+    buildConfigPlugin({
+      sourcemap: env.SENTRY_AUTH_TOKEN ? "hidden" : false,
+    }),
+    debugIdsPlugin(),
     sentryVitePlugin({
       org: env.SENTRY_ORG,
       project: env.SENTRY_PROJECT,
