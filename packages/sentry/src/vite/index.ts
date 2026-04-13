@@ -1,7 +1,6 @@
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 import type { PluginOption } from "vite";
 import { buildConfigPlugin } from "./build-config.ts";
-import { debugIdsPlugin } from "./debug-ids.ts";
 
 /**
  * All-in-one Sentry Vite integration. Bundles three things together so the
@@ -53,7 +52,6 @@ export function sentryPlugin(): PluginOption {
     buildConfigPlugin({
       sourcemap: env.SENTRY_AUTH_TOKEN ? "hidden" : false,
     }),
-    debugIdsPlugin(),
     sentryVitePlugin({
       org: env.SENTRY_ORG,
       project: env.SENTRY_PROJECT,
