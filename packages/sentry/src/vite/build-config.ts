@@ -15,13 +15,10 @@ export function buildConfigPlugin({ sourcemap }: BuildConfigOptions): Plugin {
   return {
     name: "@acme/sentry/build-config",
     config: () => ({ build: { sourcemap } }),
-    configEnvironment(name, config) {
+    configEnvironment(_name, config) {
       if (config.consumer === "server") {
         config.build ??= {};
-        // SSR is intermediate (consumed by Nitro, never served). Use
-        // non-hidden maps so Rolldown can read the sourceMappingURL
-        // and chain through to the original source files.
-        config.build.sourcemap = name === "ssr" && sourcemap ? true : sourcemap;
+        config.build.sourcemap = sourcemap;
       }
     },
   };

@@ -1,6 +1,7 @@
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 import type { PluginOption } from "vite";
 import { buildConfigPlugin } from "./build-config.ts";
+import { sourceMapsPlugin } from "./source-maps.ts";
 
 /**
  * All-in-one Sentry Vite integration. Bundles three things together so the
@@ -52,6 +53,7 @@ export function sentryPlugin(): PluginOption {
     buildConfigPlugin({
       sourcemap: env.SENTRY_AUTH_TOKEN ? "hidden" : false,
     }),
+    sourceMapsPlugin(),
     sentryVitePlugin({
       org: env.SENTRY_ORG,
       project: env.SENTRY_PROJECT,
