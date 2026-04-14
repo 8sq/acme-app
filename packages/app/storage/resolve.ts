@@ -13,6 +13,10 @@ async function tryR2(
   bucket: BucketName,
   env: Env,
 ): Promise<Storage | undefined> {
+  if (getRuntimeKey() !== "workerd") {
+    return undefined;
+  }
+
   const binding = BUCKETS[bucket].r2Binding(env);
   if (!binding) return undefined;
 
