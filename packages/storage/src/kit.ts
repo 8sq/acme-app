@@ -18,13 +18,19 @@ export function createStorageKit<
   const { resolveStorage } = createResolvers(bucketConfig);
   const presignUrl = createPresignUrl(bucketConfig, url);
 
-  let storagePromise: Promise<Buckets> | null = null;
+  let cachedStorage: Promise<Buckets> | null = null;
   const storageMiddleware = createMiddleware<{
     Bindings: TEnv;
     Variables: { storage: Buckets };
   }>(async (context, next) => {
-    storagePromise ??= resolveStorage(context.env);
-    context.set("storage", await storagePromise);
+    cachedStorage ??= resolveStorage(context.env);
+    try {
+      context.set("storage", await cachedStorage);
+    } catch (error) {
+      cachedStorage = null;
+      throw error;
+    }
+
     await next();
   });
 
