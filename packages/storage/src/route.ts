@@ -58,6 +58,8 @@ function serveFile(
 
   if (isPublic) {
     headers.set("Cache-Control", "public, max-age=31536000, immutable");
+  } else {
+    headers.set("Cache-Control", "private, no-store");
   }
 
   return new Response(data, { status: 200, headers });
