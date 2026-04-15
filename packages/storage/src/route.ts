@@ -54,6 +54,7 @@ function serveFile(
       typeof meta.contentType === "string"
         ? meta.contentType
         : "application/octet-stream",
+    "X-Content-Type-Options": "nosniff",
   });
 
   if (isPublic) {

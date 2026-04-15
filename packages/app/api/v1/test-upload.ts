@@ -41,6 +41,7 @@ export default testUpload
 
     const { key } = await storeFile(context.var.storage[bucket], file, {
       key: TEST_KEY,
+      allowedTypes: ["image/*"],
     });
 
     const url =
