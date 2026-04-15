@@ -60,10 +60,7 @@ function serveFile(
     headers.set("Cache-Control", "public, max-age=31536000, immutable");
   }
 
-  return new Response(new Uint8Array(data), {
-    status: 200,
-    headers,
-  });
+  return new Response(data, { status: 200, headers });
 }
 
 async function authorizePrivate(
@@ -75,9 +72,8 @@ async function authorizePrivate(
   verify: VerifyFn,
 ): Promise<void> {
   if (!signingKey) {
-    throw new HTTPException(503, {
-      message: "private storage access is not configured",
-    });
+    const message = "private storage access is not configured";
+    throw new HTTPException(503, { message });
   }
 
   await verify(bucket, key, expires, token, signingKey);
