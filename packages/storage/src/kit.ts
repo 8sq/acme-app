@@ -5,14 +5,21 @@ import { createPresignUrl, verifyHmacToken } from "./signing";
 import type { BucketMap, Storage, StorageEnvVars } from "./types";
 import { createUrlUtils } from "./url";
 
+interface StorageKitConfig<
+  TEnv extends StorageEnvVars,
+  TBuckets extends BucketMap<TEnv>,
+> {
+  buckets: TBuckets;
+}
+
 export function createStorageKit<
   TEnv extends StorageEnvVars,
-  const TConfig extends BucketMap<TEnv>,
->(config: TConfig) {
-  type BucketName = keyof TConfig & string;
+  const TBuckets extends BucketMap<TEnv>,
+>({ buckets }: StorageKitConfig<TEnv, TBuckets>) {
+  type BucketName = keyof TBuckets & string;
   type Buckets = Record<BucketName, Storage>;
 
-  const bucketConfig = config as Readonly<TConfig>;
+  const bucketConfig = buckets as Readonly<TBuckets>;
 
   const url = createUrlUtils(bucketConfig);
   const { resolveStorage } = createResolvers(bucketConfig);
