@@ -1,32 +1,29 @@
 {
-  "name": "@acme/storage",
+  "name": "@acme/server",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./helpers": "./src/helpers.ts"
+    "./vite": "./src/vite.ts"
   },
   "scripts": {
     "lint": "oxfmt -c ../../.oxfmtrc.json --check . && oxlint -c ../../.oxlintrc.json && tsc -b"
   },
   "dependencies": {
-    "aws4fetch": "catalog:",
-    "unstorage": "catalog:",
-    "uuid": "catalog:"
+    "@acme/sentry": "workspace:*"
   },
   "devDependencies": {
     "@acme/tsconfig": "workspace:*",
-    "@cloudflare/workers-types": "catalog:",
     "@types/node": "catalog:",
     "hono": "catalog:",
-    "typescript": "catalog:"
+    "nitro": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
   },
   "peerDependencies": {
-    "@cloudflare/workers-types": "catalog:",
-    "hono": "catalog:"
-  },
-  "cloudflareExternals": [
-    "unstorage/drivers/fs"
-  ]
+    "hono": "catalog:",
+    "nitro": "catalog:",
+    "vite": "catalog:"
+  }
 }

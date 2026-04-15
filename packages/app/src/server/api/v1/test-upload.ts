@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { storeFile } from "@acme/storage/helpers";
-import type { AppEnv } from "../../server/types";
+import type { AppEnv } from "../../types";
 import { type BucketName, presignUrl, urlFor } from "../../storage";
 
 const TEST_KEY = "test-image";

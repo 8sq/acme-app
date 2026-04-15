@@ -108,7 +108,7 @@ jobs:
           pnpm exec wrangler d1 migrations apply "$DB_NAME" --remote
 
           if [ "${NEW_DB:-}" = "true" ]; then
-            pnpm exec wrangler d1 execute "$DB_NAME" --remote --file=seed.sql
+            pnpm exec wrangler d1 execute "$DB_NAME" --remote --file=src/server/db/seed.sql
           fi
 
       - name: Setup KV namespace

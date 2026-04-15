@@ -2,8 +2,8 @@ import type { SentryBindings } from "@acme/sentry/server";
 import type { D1Database, KVNamespace } from "@cloudflare/workers-types";
 import type { Cache } from "@acme/cache";
 import type { Storage, StorageBindings } from "@acme/storage";
-import type { Database } from "../db";
-import type { BucketName } from "../storage";
+import type { Database } from "./db";
+import type { BucketName } from "./storage";
 
 export interface EnvVars extends SentryBindings {
   // ── Database ──

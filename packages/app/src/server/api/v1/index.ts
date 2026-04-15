@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { createCacheMiddleware } from "@acme/cache/middleware";
-import type { AppEnv } from "../../server/types";
+import type { AppEnv } from "../../types";
 import { dbMiddleware } from "../../db";
 import { storageMiddleware } from "../../storage";
 import postsRouter from "./posts";

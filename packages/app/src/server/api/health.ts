@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { resolveCache } from "@acme/cache";
 import { resolveDatabase } from "../db";
-import type { AppEnv } from "../server/types";
+import type { AppEnv } from "../types";
 import { resolveStorage } from "../storage";
 
 async function checkDatabase(env: AppEnv["Bindings"]) {

@@ -23,5 +23,8 @@
   "peerDependencies": {
     "@cloudflare/workers-types": "catalog:",
     "hono": "catalog:"
-  }
+  },
+  "cloudflareExternals": [
+    "iovalkey"
+  ]
 }

@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import type { AppEnv } from "../../server/types";
+import type { AppEnv } from "../../types";
 
 const sentryTest = new Hono<AppEnv>();
 

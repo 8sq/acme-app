@@ -2,7 +2,7 @@ import { captureHandledError } from "@acme/sentry/api";
 import { createSelectSchema } from "drizzle-zod";
 import { Hono } from "hono";
 import { z } from "zod";
-import type { AppEnv } from "../../server/types";
+import type { AppEnv } from "../../types";
 import { posts } from "../../db/schema";
 
 const CACHE_KEY = "posts:all";

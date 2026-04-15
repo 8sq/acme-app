@@ -1,5 +1,5 @@
 import { createStorageKit } from "@acme/storage";
-import type { CfBindings } from "./server/types";
+import type { CfBindings } from "./types";
 
 export const {
   bucketConfig,
