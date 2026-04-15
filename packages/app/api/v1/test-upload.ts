@@ -1,9 +1,8 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
+import { storeFile } from "@acme/storage/helpers";
 import type { AppEnv } from "../../server/types";
-import { presignUrl, urlFor } from "../../storage";
-import type { BucketName } from "../../storage/buckets";
-import { storeFile } from "../../storage/helpers";
+import { type BucketName, presignUrl, urlFor } from "../../storage";
 
 const TEST_KEY = "test-image";
 
@@ -42,6 +41,7 @@ export default testUpload
 
     const { key } = await storeFile(context.var.storage[bucket], file, {
       key: TEST_KEY,
+      allowedTypes: ["image/*"],
     });
 
     const url =
