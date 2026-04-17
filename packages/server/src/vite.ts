@@ -69,7 +69,7 @@ export function acmeServer(options: AcmeServerOptions = {}): PluginOption {
   }
 
   return nitro({
-    serverDir: resolve(root, "src/server"),
+    serverDir: false,
     errorHandler: resolve(pkg, "nitro/error"),
     virtual: { ...virtual, ...options.nitro?.virtual },
     handlers: [...handlers, ...(options.nitro?.handlers ?? [])],
