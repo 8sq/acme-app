@@ -65,7 +65,7 @@ export function acmeServer(options: AcmeServerOptions = {}): PluginOption {
       `import app from "${resolve(root, appPath)}";`,
       `export default createApiEventHandler(app);`,
     ].join("\n");
-    handlers.push({ route: `${route}/**`, handler: id });
+    handlers.push({ route: `${route}/**`, handler: id, lazy: true });
   }
 
   return nitro({
