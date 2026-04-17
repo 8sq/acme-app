@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { NitroEventHandler } from "nitro/types";
 import { nitro, type NitroPluginConfig } from "nitro/vite";
-import type { PluginOption } from "vite";
+import { normalizePath, type PluginOption } from "vite";
 
 interface AcmeServerOptions {
   apps?: Record<string, string>;
@@ -60,9 +60,10 @@ export function acmeServer(options: AcmeServerOptions = {}): PluginOption {
 
   for (const [route, appPath] of Object.entries(options.apps ?? {})) {
     const id = `#acme${route.replaceAll("/", "-")}`;
+    const appImportPath = normalizePath(resolve(root, appPath));
     virtual[id] = [
       `import { createApiEventHandler } from "@acme/server";`,
-      `import app from "${resolve(root, appPath)}";`,
+      `import app from "${appImportPath}";`,
       `export default createApiEventHandler(app);`,
     ].join("\n");
     handlers.push({ route: `${route}/**`, handler: id, lazy: true });
