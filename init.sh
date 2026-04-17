@@ -4,7 +4,7 @@ set -euo pipefail
 if [ $# -ne 1 ] || [ -z "$1" ]; then
   echo "Usage: ./init.sh <project-slug>"
   echo ""
-  echo "Replaces all @acme/acme placeholders with the given name."
+  echo "Replaces all acme/Acme/ACME placeholders with the given name."
   echo "The slug must be lowercase alphanumeric with optional dashes"
   echo "(e.g. my-project)."
   exit 1
@@ -17,6 +17,17 @@ if ! [[ "$slug" =~ ^[a-z0-9]([a-z0-9-]*[a-z0-9])?$ ]]; then
   echo "Use lowercase letters, numbers, and dashes (e.g. my-project)."
   exit 1
 fi
+
+# my-project -> MyProject
+pascal=""
+IFS='-' read -ra slug_parts <<< "$slug"
+for part in "${slug_parts[@]}"; do
+  pascal+="${part^}"
+done
+
+# my-project -> MY_PROJECT
+constant="${slug^^}"
+constant="${constant//-/_}"
 
 root="$(cd "$(dirname "$0")" && pwd)"
 
@@ -32,10 +43,10 @@ while IFS= read -r -d '' file; do
     continue
   fi
   # perl instead of sed -i for macOS/BSD portability
-  perl -pi -e "s/\@acme/\@$slug/g; s/acme/$slug/g" "$file"
+  perl -pi -e "s/Acme/$pascal/g; s/ACME/$constant/g; s/acme/$slug/g" "$file"
 done
 
-echo "Replaced @acme → @$slug and acme → $slug"
+echo "Replaced Acme → $pascal, ACME → $constant, acme → $slug"
 
 if command -v pnpm &>/dev/null; then
   echo "Regenerating pnpm-lock.yaml..."
