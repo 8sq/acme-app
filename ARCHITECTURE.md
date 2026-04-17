@@ -94,10 +94,10 @@ createDbKit({
 // → { resolveDatabase, dbMiddleware, seed }
 ```
 
-`databaseUrl` returns a non-undefined string; the callback is only
-invoked for the libsql path (lazy via thunk). The app's
-`resolveDbUrl` throws in production when `DATABASE_URL` is missing
-and defaults to `file:sqlite.db` in dev.
+`databaseUrl` returns a non-undefined string; the callback is
+invoked lazily (via thunk) on any non-workerd path — D1 skips it
+entirely. The app's `resolveDbUrl` throws in production when
+`DATABASE_URL` is missing and defaults to `file:sqlite.db` in dev.
 
 Runtime resolution:
 
