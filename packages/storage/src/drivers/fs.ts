@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { createWriteStream } from "node:fs";
 import { access, mkdir, open, rename, rm } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { dirname, resolve as resolvePath, sep } from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import {
@@ -38,13 +38,31 @@ interface FsHeader {
  * pins it for the whole stream lifetime.
  */
 export class FsDriver implements StorageDriver {
-  constructor(
-    private readonly base: string,
-    private readonly options: DriverOptions = {},
-  ) {}
+  private readonly baseAbs: string;
 
+  constructor(
+    base: string,
+    private readonly options: DriverOptions = {},
+  ) {
+    this.baseAbs = resolvePath(base);
+  }
+
+  /**
+   * Resolves a user-supplied key to an absolute filesystem path, rejecting
+   * any key that would escape `base` (via `..`, an absolute segment, or a
+   * null byte). Single chokepoint for path-traversal defence — every
+   * public method routes through here.
+   */
   private path(key: string): string {
-    return join(this.base, key);
+    if (key.includes("\0")) {
+      throw new Error("invalid key: null byte");
+    }
+    const fullPath = resolvePath(this.baseAbs, key);
+    // sep on the prefix prevents `${base}X` from matching `${base}`.
+    if (fullPath !== this.baseAbs && !fullPath.startsWith(this.baseAbs + sep)) {
+      throw new Error(`invalid key: path escape: ${key}`);
+    }
+    return fullPath;
   }
 
   async get(key: string): Promise<StorageObject | null> {
