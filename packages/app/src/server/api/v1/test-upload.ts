@@ -30,7 +30,8 @@ export default testUpload
     }
 
     const uploadedAtRaw = object?.metadata.uploadedAt;
-    const uploadedAt = uploadedAtRaw ? Number(uploadedAtRaw) : null;
+    const parsed = uploadedAtRaw ? Number(uploadedAtRaw) : Number.NaN;
+    const uploadedAt = Number.isFinite(parsed) ? parsed : null;
     return context.json({ exists, bucket, url, uploadedAt });
   })
   .post("/", async (context) => {
