@@ -426,10 +426,15 @@ init script to replace them:
 
 Given a slug like `my-project`, the script rewrites:
 
-- `acme` → `my-project` (kebab-case, including `@acme/*` package
-  scopes as substrings)
+- `@acme/*` → `@my-project/*` (kebab — npm package scope)
+- `acme` (anywhere else) → `myproject` (flat lowercase, dashes
+  stripped — keeps identifiers like `acmeServer` valid and Docker /
+  Cloudflare / compose names lowercase-only)
 - `Acme` → `MyProject` (PascalCase — type names, JSX, titles)
 - `ACME` → `MY_PROJECT` (CONSTANT_CASE — env vars, constants)
+
+The slug must start with a lowercase letter and contain only
+lowercase letters, numbers, and dashes.
 
 It scans all text files, regenerates `pnpm-lock.yaml`, then deletes
 itself.
