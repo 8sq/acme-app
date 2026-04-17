@@ -16,16 +16,17 @@ interface SentryHonoErrorHandlerOptions {
 }
 
 /**
- * Build a Hono error handler that forwards uncaught API errors to Sentry
- * and turns them into JSON 500 responses.
+ * Build a Hono error handler that forwards uncaught errors to Sentry.
  *
- * - `HTTPException`s pass through unchanged. Ones with `status >= 500`
- *   are reported, the rest aren't (they're expected client-error
+ * - `HTTPException`s pass through via `error.getResponse()` — body
+ *   shape is whatever the thrower set. Ones with `status >= 500` are
+ *   reported to Sentry; 4xx aren't (they're expected client-error
  *   responses).
- * - Anything else is captured and returned as `{ error, sentryEventId }`
- *   so the frontend can surface the event ID for support.
- *   `sentryEventId` is `null` when capture was suppressed (caller UA
- *   matched `ignoreUserAgent`) or the Sentry client isn't initialized.
+ * - Anything else is captured and returned as a JSON 500
+ *   `{ error, sentryEventId }` so the frontend can surface the event
+ *   ID for support. `sentryEventId` is `null` when capture was
+ *   suppressed (caller UA matched `ignoreUserAgent`) or the Sentry
+ *   client isn't initialized.
  *
  * The current Sentry scope is enriched with the request IP, URL, and
  * method regardless of whether the error is captured.
