@@ -102,8 +102,13 @@ and defaults to `file:sqlite.db` in dev.
 Runtime resolution:
 
 - **Cloudflare (workerd)**: D1 via `env.DB` binding + `drizzle-orm/d1`
-- **Node.js / Docker**: libsql via `@libsql/client` (dynamic import
-  keeps `node:fs` out of the worker bundle)
+- **Node.js + `file:` URL**: `better-sqlite3` (sync native binding,
+  faster than libsql for on-disk access)
+- **Node.js + remote URL** (`http://`, `libsql://`, …): libsql via
+  `@libsql/client`
+
+All drivers load via dynamic import so native and Node-only modules
+stay out of the worker bundle.
 
 `dbMiddleware` injects the resolved Drizzle instance via
 `context.set("db", ...)`, so handlers are driver-agnostic. `seed(url, path)`
@@ -286,11 +291,11 @@ drops these to prevent double-reporting.
 
 ## Deployment
 
-| Layer   | Cloudflare      | Docker (self-hosted)  | Dev / Standalone        |
-| ------- | --------------- | --------------------- | ----------------------- |
-| DB      | D1 (drizzle/d1) | sqld (drizzle/libsql) | SQLite (drizzle/libsql) |
-| Cache   | KV              | Valkey (iovalkey)     | In-memory               |
-| Storage | R2 or KV or S3  | MinIO (unstorage/s3)  | Filesystem (unstorage)  |
+| Layer   | Cloudflare      | Docker (self-hosted)  | Dev / Standalone                |
+| ------- | --------------- | --------------------- | ------------------------------- |
+| DB      | D1 (drizzle/d1) | sqld (drizzle/libsql) | SQLite (drizzle/better-sqlite3) |
+| Cache   | KV              | Valkey (iovalkey)     | In-memory                       |
+| Storage | R2 or KV or S3  | MinIO (unstorage/s3)  | Filesystem (unstorage)          |
 
 ### Docker
 
