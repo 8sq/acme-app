@@ -25,6 +25,9 @@ interface SentryHonoErrorHandlerOptions {
  *   responses).
  * - Anything else is captured and returned as `{ error, sentryEventId }`
  *   so the frontend can surface the event ID for support.
+ *   `sentryEventId` is `null` when capture was suppressed (caller UA
+ *   matched `ignoreUserAgents`) or the Sentry client isn't
+ *   initialized.
  *
  * The current Sentry scope is enriched with the request IP, URL, and
  * method regardless of whether the error is captured.
@@ -75,9 +78,9 @@ export function createSentryHonoErrorHandler(
       return error.getResponse();
     }
 
-    const eventId = shouldCapture ? Sentry.captureException(error) : undefined;
+    const eventId = shouldCapture ? Sentry.captureException(error) : null;
     return context.json(
-      { error: "Internal Server Error", sentryEventId: eventId },
+      { error: "Internal Server Error", sentryEventId: eventId ?? null },
       500,
     );
   };
