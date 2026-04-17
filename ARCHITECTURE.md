@@ -260,9 +260,9 @@ different error surfaces:
    onError handler + `withSentry` wrap (applied by
    `createApiEventHandler` to every app registered via
    `acmeServer({ apps })`). Skips 4xx, returns
-   `{ error, sentryEventId }` for 5xx. Pass `ignoreUserAgents` to
-   suppress capture for specific probe clients (e.g. the CI health
-   probe whose 5xx during post-deploy warmup is expected noise).
+   `{ error, sentryEventId }` for 5xx. Pass `ignoreUserAgent` to
+   suppress capture for a probe client (e.g. the CI health probe
+   whose 5xx during post-deploy warmup is expected noise).
 
 2. **SSR** (`@acme/sentry/server`):
    `CloudflareClient` for render errors. Flushes before responding.
@@ -325,7 +325,7 @@ Two workflows in `.github/workflows/`:
 9. Deploy to Cloudflare Pages
 10. Health check against `/health` — the CI probe sets a
     `User-Agent: acme-ci-health-probe`. The `/health` route's
-    `createSentryHonoErrorHandler({ ignoreUserAgents: [...] })` skips
+    `createSentryHonoErrorHandler({ ignoreUserAgent: "..." })` skips
     Sentry capture for that UA during the post-deploy warmup window
     (bindings can briefly race the worker). Other callers still
     surface 5xx to Sentry.

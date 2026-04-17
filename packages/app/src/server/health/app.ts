@@ -43,7 +43,7 @@ const health = new Hono<AppEnv>()
   // warmup 5xx so Sentry only sees real outages (non-CI callers).
   .onError(
     createSentryHonoErrorHandler({
-      ignoreUserAgents: ["acme-ci-health-probe"],
+      ignoreUserAgent: "acme-ci-health-probe",
     }),
   )
   .basePath("/health")
