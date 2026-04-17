@@ -24,6 +24,9 @@ pascal=$(perl -e 'print join("", map { ucfirst } split(/-/, $ARGV[0]))' "$slug")
 # my-project -> MY_PROJECT
 constant=$(printf '%s' "$slug" | tr 'a-z-' 'A-Z_')
 
+# my-project -> myproject (for identifier-safe and Docker/CF/compose contexts)
+flat=$(printf '%s' "$slug" | tr -d '-')
+
 root="$(cd "$(dirname "$0")" && pwd)"
 
 find "$root" -type f \
@@ -39,10 +42,12 @@ while IFS= read -r -d '' file; do
     continue
   fi
   # perl instead of sed -i for macOS/BSD portability
-  perl -pi -e "s/Acme/$pascal/g; s/ACME/$constant/g; s/acme/$slug/g" "$file"
+  # `\@acme` first preserves npm scope kebab; `acme` last (after Acme/ACME)
+  # consumes everything else as flat lowercase, keeping identifiers valid.
+  perl -pi -e "s/\@acme/\@$slug/g; s/Acme/$pascal/g; s/ACME/$constant/g; s/acme/$flat/g" "$file"
 done
 
-echo "Replaced Acme → $pascal, ACME → $constant, acme → $slug"
+echo "Replaced @acme → @$slug, Acme → $pascal, ACME → $constant, acme → $flat"
 
 # Strip the README's `./init.sh <slug>` instruction line + trailing blank.
 if [ -f "$root/README.md" ]; then
