@@ -1,6 +1,5 @@
 import type { SentryBindings } from "@acme/sentry/server";
-import type { KVNamespace } from "@cloudflare/workers-types";
-import type { Cache } from "@acme/cache";
+import type { Cache, CacheBindings } from "@acme/cache";
 import type { DbBindings } from "@acme/db";
 import type { Storage, StorageBindings } from "@acme/storage";
 import type { Database } from "./db";
@@ -36,9 +35,8 @@ export interface EnvVars extends SentryBindings {
   KV_STORAGE?: string;
 }
 
-export interface CfBindings extends EnvVars, DbBindings, StorageBindings {
-  CACHE?: KVNamespace;
-}
+export interface CfBindings
+  extends EnvVars, DbBindings, StorageBindings, CacheBindings {}
 
 export interface AppEnv {
   Bindings: CfBindings;
