@@ -45,6 +45,7 @@ interface MediaEnv {
 function serveFile(object: StorageObject, isPublic: boolean): Response {
   const headers = new Headers({
     "Content-Type": object.contentType,
+    "Content-Length": String(object.size),
     "Cache-Control": object.cacheControl ?? cacheControlFor(isPublic),
     "X-Content-Type-Options": "nosniff",
   });
