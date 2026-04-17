@@ -2,8 +2,8 @@
 // update avatar, etc.) that handle file uploads server-side.
 
 import { HTTPException } from "hono/http-exception";
-import type { Storage } from "unstorage";
 import { v7 as uuidv7 } from "uuid";
+import type { StorageDriver } from "./driver";
 
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10 MB
 
@@ -12,13 +12,6 @@ function matchContentType(type: string, pattern: string): boolean {
     return type.startsWith(pattern.slice(0, -1));
   }
   return type === pattern;
-}
-
-export interface FileMeta {
-  contentType: string;
-  size: number;
-  originalName: string;
-  uploadedAt: number;
 }
 
 /** UUID v7 key (time-sortable) with the original file extension preserved. */
@@ -33,26 +26,30 @@ export interface StoreFileOptions {
   key?: string;
   maxBytes?: number;
   allowedTypes?: string[];
-  meta?: Partial<FileMeta>;
+  metadata?: Record<string, string>;
 }
 
 /**
- * Validates, stores, and records metadata for a file upload.
+ * Validates and stores a file upload. Streams the body through to the driver
+ * with sizeHint = file.size so the driver can verify byte count without
+ * buffering the whole file in memory.
  *
  * Returns the storage key (generated or provided via `key`).
  * Throws 415 if the file type is not allowed.
  * Throws 413 if the file exceeds the size limit.
  */
 export async function storeFile(
-  storage: Storage,
+  storage: StorageDriver,
   file: File,
-  {
+  options: StoreFileOptions = {},
+): Promise<{ key: string }> {
+  const {
     key,
     maxBytes = MAX_UPLOAD_BYTES,
     allowedTypes,
-    meta,
-  }: StoreFileOptions = {},
-): Promise<{ key: string }> {
+    metadata = {},
+  } = options;
+
   if (allowedTypes?.every((pattern) => !matchContentType(file.type, pattern))) {
     throw new HTTPException(415, { message: "unsupported file type" });
   }
@@ -62,14 +59,14 @@ export async function storeFile(
   }
 
   const resolvedKey = key ?? generateKey(file.name);
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  await storage.setItemRaw(resolvedKey, bytes);
-  await storage.setMeta(resolvedKey, {
+  await storage.put(resolvedKey, file.stream() as ReadableStream<Uint8Array>, {
     contentType: file.type || "application/octet-stream",
-    size: file.size,
-    originalName: file.name,
-    uploadedAt: Date.now(),
-    ...meta,
+    sizeHint: file.size,
+    metadata: {
+      originalName: file.name,
+      uploadedAt: String(Date.now()),
+      ...metadata,
+    },
   });
 
   return { key: resolvedKey };

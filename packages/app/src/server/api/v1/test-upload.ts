@@ -16,8 +16,10 @@ export default testUpload
   .get("/", async (context) => {
     const bucket = parseBucket(context.req.query("bucket"));
     const storage = context.var.storage[bucket];
-    const exists = await storage.hasItem(TEST_KEY);
-    const meta = exists ? await storage.getMeta(TEST_KEY) : null;
+    const object = await storage.get(TEST_KEY);
+    const exists = object !== null;
+    // get() returned a stream we won't read; release the connection.
+    await object?.body.cancel();
 
     let url: string | null = null;
     if (exists) {
@@ -27,8 +29,8 @@ export default testUpload
           : urlFor(bucket, context.env, TEST_KEY);
     }
 
-    const uploadedAt =
-      typeof meta?.uploadedAt === "number" ? meta.uploadedAt : null;
+    const uploadedAtRaw = object?.metadata.uploadedAt;
+    const uploadedAt = uploadedAtRaw ? Number(uploadedAtRaw) : null;
     return context.json({ exists, bucket, url, uploadedAt });
   })
   .post("/", async (context) => {

@@ -1,13 +1,12 @@
 import { Hono } from "hono";
 import type { MiddlewareHandler } from "hono/types";
 import { HTTPException } from "hono/http-exception";
-import type {
-  BucketConfig,
-  BucketMap,
-  S3Fn,
-  SigningKeyFn,
-  Storage,
-} from "./types";
+import {
+  cacheControlFor,
+  type StorageDriver,
+  type StorageObject,
+} from "./driver";
+import type { BucketConfig, BucketMap, S3Fn, SigningKeyFn } from "./types";
 
 type VerifyFn = (
   bucket: string,
@@ -40,30 +39,17 @@ function isProxyDisabled<TEnv>(
 }
 
 interface MediaEnv {
-  Variables: { storage: Record<string, Storage> };
+  Variables: { storage: Record<string, StorageDriver> };
 }
 
-function serveFile(
-  data: Uint8Array,
-  meta: Record<string, unknown>,
-  isPublic: boolean,
-): Response {
+function serveFile(object: StorageObject, isPublic: boolean): Response {
   const headers = new Headers({
-    "Content-Length": String(data.byteLength),
-    "Content-Type":
-      typeof meta.contentType === "string"
-        ? meta.contentType
-        : "application/octet-stream",
+    "Content-Type": object.contentType,
+    "Cache-Control": object.cacheControl ?? cacheControlFor(isPublic),
     "X-Content-Type-Options": "nosniff",
   });
 
-  if (isPublic) {
-    headers.set("Cache-Control", "public, max-age=31536000, immutable");
-  } else {
-    headers.set("Cache-Control", "private, no-store");
-  }
-
-  return new Response(data, { status: 200, headers });
+  return new Response(object.body, { status: 200, headers });
 }
 
 async function authorizePrivate(
@@ -88,7 +74,7 @@ interface MediaContext {
     param(name: string): string;
     query(name: string): string | undefined;
   };
-  var: { storage: Record<string, Storage> };
+  var: { storage: Record<string, StorageDriver> };
 }
 
 function buildGetHandler<TEnv>(
@@ -110,9 +96,6 @@ function buildGetHandler<TEnv>(
     if (!key) {
       throw new HTTPException(400, { message: "missing key" });
     }
-    if (key.endsWith("$")) {
-      throw new HTTPException(404, { message: "file not found" });
-    }
 
     if (!config.public) {
       await authorizePrivate(
@@ -130,12 +113,12 @@ function buildGetHandler<TEnv>(
       throw new HTTPException(500, { message: "bucket not resolved" });
     }
 
-    const data = await storage.getItemRaw<Uint8Array>(key);
-    if (!data) {
+    const object = await storage.get(key);
+    if (!object) {
       throw new HTTPException(404, { message: "file not found" });
     }
 
-    return serveFile(data, await storage.getMeta(key), config.public);
+    return serveFile(object, config.public);
   };
 }
 

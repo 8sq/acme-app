@@ -1,7 +1,6 @@
 import type { R2Bucket } from "@cloudflare/workers-types";
-import type { Storage } from "unstorage";
 
-export type { Storage };
+export type { StorageDriver, StorageObject, StoragePutOptions } from "./driver";
 
 export interface S3Credentials {
   endpoint: string;
