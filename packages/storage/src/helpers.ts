@@ -3,7 +3,7 @@
 
 import { HTTPException } from "hono/http-exception";
 import { v7 as uuidv7 } from "uuid";
-import type { StorageDriver } from "./driver";
+import type { StorageDriver, ValidatedMetadata } from "./driver";
 
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10 MB
 
@@ -22,11 +22,14 @@ export function generateKey(filename: string): string {
   return `${uuidv7()}${ext}`;
 }
 
-export interface StoreFileOptions {
+export interface StoreFileOptions<
+  TMeta extends Record<string, string> = Record<string, string>,
+> {
   key?: string;
   maxBytes?: number;
   allowedTypes?: string[];
-  metadata?: Record<string, string>;
+  /** Same kebab-case contract as `StoragePutOptions.metadata`. */
+  metadata?: ValidatedMetadata<TMeta>;
 }
 
 /**
@@ -38,10 +41,10 @@ export interface StoreFileOptions {
  * Throws 415 if the file type is not allowed.
  * Throws 413 if the file exceeds the size limit.
  */
-export async function storeFile(
+export async function storeFile<TMeta extends Record<string, string>>(
   storage: StorageDriver,
   file: File,
-  options: StoreFileOptions = {},
+  options: StoreFileOptions<TMeta> = {},
 ): Promise<{ key: string }> {
   const {
     key,

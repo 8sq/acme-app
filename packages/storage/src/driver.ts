@@ -26,18 +26,85 @@ export interface DriverOptions {
   defaultCacheControl?: string;
 }
 
-export interface StoragePutOptions {
+// Enumerated character classes used by KebabKey. Defined as explicit
+// unions instead of relying on Lowercase<X>/Uppercase<X> tricks: those
+// misclassify non-letters (e.g. Uppercase<"-"> is "-", which would
+// false-positive every hyphen as uppercase).
+type LowerLetter =
+  | "a"
+  | "b"
+  | "c"
+  | "d"
+  | "e"
+  | "f"
+  | "g"
+  | "h"
+  | "i"
+  | "j"
+  | "k"
+  | "l"
+  | "m"
+  | "n"
+  | "o"
+  | "p"
+  | "q"
+  | "r"
+  | "s"
+  | "t"
+  | "u"
+  | "v"
+  | "w"
+  | "x"
+  | "y"
+  | "z";
+type Digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
+
+/** Compile-time check matching `/^[a-z0-9][a-z0-9-]*$/`. */
+type KebabKey<TKey extends string> =
+  TKey extends `${LowerLetter | Digit}${infer Rest}`
+    ? KebabBody<Rest> extends true
+      ? TKey
+      : never
+    : never;
+
+/** Tail-recursive body check: each subsequent char in `[a-z0-9-]`. */
+type KebabBody<TKey extends string> = TKey extends ""
+  ? true
+  : TKey extends `${LowerLetter | Digit | "-"}${infer Rest}`
+    ? KebabBody<Rest>
+    : false;
+
+/**
+ * Maps each metadata key through `KebabKey`. Invalid keys turn the
+ * value type into a branded error-string literal — assigning a normal
+ * `string` to it fails the compile with the message visible in the TS
+ * error. Catches uppercase, leading hyphens, underscores, embedded
+ * uppercase, non-ASCII, and empty keys when keys are literal in an
+ * object literal. Dynamic / spread keys widen to `Record<string,
+ * string>` and are caught by `validateMetadataKeys` at runtime.
+ */
+export type ValidatedMetadata<TMeta> = {
+  [TKey in keyof TMeta]: TKey extends string
+    ? TKey extends KebabKey<TKey>
+      ? TMeta[TKey]
+      : `ERROR: metadata key '${TKey}' must be lowercase kebab-case ([a-z0-9][a-z0-9-]*)`
+    : TMeta[TKey];
+};
+
+export interface StoragePutOptions<
+  TMeta extends Record<string, string> = Record<string, string>,
+> {
   contentType: string;
   cacheControl?: string;
   /**
    * Custom metadata. Keys must match `/^[a-z0-9][a-z0-9-]*$/` —
    * lowercase letters, digits, and `-`, starting with a letter or
-   * digit. S3 case-folds `x-amz-meta-*` headers in transit and
-   * Headers iteration always yields lowercase, so storing mixed case
-   * doesn't round-trip reliably; drivers throw on invalid keys instead
-   * of silently normalising.
+   * digit. Literal keys are checked at compile time via
+   * `ValidatedMetadata`; dynamic keys are caught at runtime by
+   * `validateMetadataKeys`. S3 case-folds `x-amz-meta-*` headers in
+   * transit so this contract holds across every backend.
    */
-  metadata?: Record<string, string>;
+  metadata?: ValidatedMetadata<TMeta>;
   /**
    * Expected byte length of the body. Drivers verify the actual byte count
    * matches and abort the put on mismatch. Untrusted callers (e.g. raw
@@ -48,10 +115,10 @@ export interface StoragePutOptions {
 
 export interface StorageDriver {
   get(key: string): Promise<StorageObject | null>;
-  put(
+  put<TMeta extends Record<string, string>>(
     key: string,
     body: ReadableStream<Uint8Array> | Uint8Array,
-    options: StoragePutOptions,
+    options: StoragePutOptions<TMeta>,
   ): Promise<void>;
   delete(key: string): Promise<void>;
   has(key: string): Promise<boolean>;
@@ -69,7 +136,13 @@ export function prefixDriver(
 
   return {
     get: (key) => inner.get(prefixed(key)),
-    put: (key, body, options) => inner.put(prefixed(key), body, options),
+    async put<TMeta extends Record<string, string>>(
+      key: string,
+      body: ReadableStream<Uint8Array> | Uint8Array,
+      options: StoragePutOptions<TMeta>,
+    ): Promise<void> {
+      await inner.put(prefixed(key), body, options);
+    },
     delete: (key) => inner.delete(prefixed(key)),
     has: (key) => inner.has(prefixed(key)),
   };

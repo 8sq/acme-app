@@ -185,10 +185,10 @@ export class FsDriver implements StorageDriver {
     };
   }
 
-  async put(
+  async put<TMeta extends Record<string, string>>(
     key: string,
     body: ReadableStream<Uint8Array> | Uint8Array,
-    options: StoragePutOptions,
+    options: StoragePutOptions<TMeta>,
   ): Promise<void> {
     const {
       sizeHint,

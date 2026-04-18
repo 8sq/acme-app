@@ -78,10 +78,10 @@ export class S3Driver implements StorageDriver {
     };
   }
 
-  async put(
+  async put<TMeta extends Record<string, string>>(
     key: string,
     body: ReadableStream<Uint8Array> | Uint8Array,
-    options: StoragePutOptions,
+    options: StoragePutOptions<TMeta>,
   ): Promise<void> {
     const {
       sizeHint,
@@ -98,7 +98,13 @@ export class S3Driver implements StorageDriver {
       headers["Cache-Control"] = cacheControl;
     }
 
-    for (const [name, value] of Object.entries(metadata)) {
+    // Cast: ValidatedMetadata<TMeta> is a mapped type whose value
+    // becomes `unknown` under Object.entries; values are guaranteed
+    // strings at runtime by both the type constraint and the runtime
+    // validator above.
+    for (const [name, value] of Object.entries(
+      metadata as Record<string, string>,
+    )) {
       headers[`${META_PREFIX}${name}`] = value;
     }
 
