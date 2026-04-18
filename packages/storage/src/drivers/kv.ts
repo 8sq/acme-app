@@ -31,7 +31,15 @@ export class KvDriver implements StorageDriver {
       key,
       "stream",
     );
-    if (!result.value || !result.metadata) {
+
+    if (!result.value) {
+      return null;
+    }
+
+    if (!result.metadata) {
+      // Legacy/garbage object with no metadata — drain so KV releases
+      // the connection rather than leak it.
+      await result.value.cancel();
       return null;
     }
 
