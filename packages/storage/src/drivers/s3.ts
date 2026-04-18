@@ -60,16 +60,20 @@ export class S3Driver implements StorageDriver {
       }
     }
 
+    // Strict parse: Number() would let NaN, decimals, negatives, and
+    // empty strings through and we'd later ship Content-Length: NaN
+    // (or wrong byte counts). Anything malformed → null → proxy omits
+    // the header and falls back to chunked transfer.
+    const lenRaw = headers.get("content-length");
+    const lenParsed = lenRaw === null ? Number.NaN : Number(lenRaw);
+    const size =
+      Number.isInteger(lenParsed) && lenParsed >= 0 ? lenParsed : null;
+
     return {
       body: response.body,
       contentType: headers.get("content-type") ?? "application/octet-stream",
       cacheControl: headers.get("cache-control") ?? undefined,
-      // Spec-compliant providers always set content-length on whole-object
-      // GETs; null surfaces non-conforming responses so the proxy omits
-      // Content-Length instead of shipping a wrong value.
-      size: headers.has("content-length")
-        ? Number(headers.get("content-length"))
-        : null,
+      size,
       metadata,
     };
   }

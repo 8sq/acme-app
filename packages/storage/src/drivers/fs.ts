@@ -24,6 +24,53 @@ interface FsHeader {
   metadata: Record<string, string>;
 }
 
+interface ParsedHeader {
+  header: FsHeader;
+  dataOffset: number;
+  size: number;
+}
+
+/**
+ * Reads the length-prefixed JSON header from an open FileHandle and
+ * verifies that the file is long enough to contain the data section
+ * the offsets imply. Throws on any truncation or corruption — the
+ * caller is responsible for closing the FileHandle on error.
+ */
+async function readHeader(
+  fd: import("node:fs/promises").FileHandle,
+): Promise<ParsedHeader> {
+  const lenBuf = Buffer.alloc(HEADER_LEN_BYTES);
+  const lenRead = await fd.read(lenBuf, 0, HEADER_LEN_BYTES, 0);
+  if (lenRead.bytesRead !== HEADER_LEN_BYTES) {
+    throw new Error(
+      `FS object truncated: header-length read ${lenRead.bytesRead}/${HEADER_LEN_BYTES} bytes`,
+    );
+  }
+  const headerLen = lenBuf.readUInt32BE(0);
+  if (headerLen === 0 || headerLen > MAX_HEADER_BYTES) {
+    throw new Error(`FS object header length out of range: ${headerLen}`);
+  }
+
+  const headerBuf = Buffer.alloc(headerLen);
+  const headerRead = await fd.read(headerBuf, 0, headerLen, HEADER_LEN_BYTES);
+  if (headerRead.bytesRead !== headerLen) {
+    throw new Error(
+      `FS object truncated: header read ${headerRead.bytesRead}/${headerLen} bytes`,
+    );
+  }
+  const header = JSON.parse(headerBuf.toString("utf8")) as FsHeader;
+
+  const dataOffset = HEADER_LEN_BYTES + headerLen;
+  const fileSize = (await fd.stat()).size;
+  if (fileSize < dataOffset) {
+    throw new Error(
+      `FS object truncated: file size ${fileSize} < header end ${dataOffset}`,
+    );
+  }
+
+  return { header, dataOffset, size: fileSize - dataOffset };
+}
+
 /**
  * Local filesystem driver. Each object is a single file:
  *
@@ -77,23 +124,9 @@ export class FsDriver implements StorageDriver {
       throw err;
     }
 
-    let header: FsHeader;
-    let dataOffset: number;
-    let size: number;
+    let parsed: { header: FsHeader; dataOffset: number; size: number };
     try {
-      const lenBuf = Buffer.alloc(HEADER_LEN_BYTES);
-      await fd.read(lenBuf, 0, HEADER_LEN_BYTES, 0);
-      const headerLen = lenBuf.readUInt32BE(0);
-      if (headerLen === 0 || headerLen > MAX_HEADER_BYTES) {
-        throw new Error(`FS object header length out of range: ${headerLen}`);
-      }
-
-      const headerBuf = Buffer.alloc(headerLen);
-      await fd.read(headerBuf, 0, headerLen, HEADER_LEN_BYTES);
-      header = JSON.parse(headerBuf.toString("utf8")) as FsHeader;
-
-      dataOffset = HEADER_LEN_BYTES + headerLen;
-      size = (await fd.stat()).size - dataOffset;
+      parsed = await readHeader(fd);
     } catch (err) {
       await fd.close();
       throw err;
@@ -102,17 +135,17 @@ export class FsDriver implements StorageDriver {
     // FileHandle.createReadStream pins the inode for the stream's lifetime
     // and auto-closes on end/error/cancel. A concurrent rename of the same
     // key replaces the inode mapping but our fd keeps the old one.
-    const nodeStream = fd.createReadStream({ start: dataOffset });
+    const nodeStream = fd.createReadStream({ start: parsed.dataOffset });
     const body = Readable.toWeb(
       nodeStream,
     ) as unknown as ReadableStream<Uint8Array>;
 
     return {
       body,
-      contentType: header.contentType,
-      cacheControl: header.cacheControl,
-      size,
-      metadata: header.metadata,
+      contentType: parsed.header.contentType,
+      cacheControl: parsed.header.cacheControl,
+      size: parsed.size,
+      metadata: parsed.header.metadata,
     };
   }
 
