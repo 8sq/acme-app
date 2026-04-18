@@ -1,6 +1,7 @@
 import type { KVNamespace } from "@cloudflare/workers-types";
 import {
   bufferBody,
+  validateMetadataKeys,
   validatingStream,
   type DriverOptions,
   type StorageDriver,
@@ -55,6 +56,7 @@ export class KvDriver implements StorageDriver {
       cacheControl = this.options.defaultCacheControl,
       metadata = {},
     } = options;
+    validateMetadataKeys(metadata);
 
     // KV needs `size` in metadata, set at put-time. With a sizeHint we can
     // stream: the validating transform aborts the put on mismatch (KV puts

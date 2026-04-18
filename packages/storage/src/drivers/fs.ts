@@ -5,6 +5,7 @@ import { dirname, resolve as resolvePath, sep } from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import {
+  validateMetadataKeys,
   validatingStream,
   type DriverOptions,
   type StorageDriver,
@@ -126,6 +127,7 @@ export class FsDriver implements StorageDriver {
       cacheControl = this.options.defaultCacheControl,
       metadata = {},
     } = options;
+    validateMetadataKeys(metadata);
 
     const filePath = this.path(key);
     // Unique tmp per put: concurrent same-key puts never share a tmp path.

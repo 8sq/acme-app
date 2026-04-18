@@ -1,5 +1,6 @@
 import { AwsClient } from "aws4fetch";
 import {
+  validateMetadataKeys,
   validatingStream,
   type DriverOptions,
   type StorageDriver,
@@ -84,6 +85,7 @@ export class S3Driver implements StorageDriver {
       cacheControl = this.options.defaultCacheControl,
       metadata = {},
     } = options;
+    validateMetadataKeys(metadata);
 
     const headers: Record<string, string> = {
       "Content-Type": contentType,

@@ -63,8 +63,8 @@ export async function storeFile(
     contentType: file.type || "application/octet-stream",
     sizeHint: file.size,
     metadata: {
-      originalName: file.name,
-      uploadedAt: String(Date.now()),
+      "original-name": file.name,
+      "uploaded-at": String(Date.now()),
       ...metadata,
     },
   });

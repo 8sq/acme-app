@@ -1,5 +1,6 @@
 import type { R2Bucket } from "@cloudflare/workers-types";
 import {
+  validateMetadataKeys,
   validatingStream,
   type DriverOptions,
   type StorageDriver,
@@ -51,6 +52,7 @@ export class R2Driver implements StorageDriver {
       cacheControl = this.options.defaultCacheControl,
       metadata = {},
     } = options;
+    validateMetadataKeys(metadata);
 
     const verified = validatingStream(body, sizeHint);
     // Cast: workers-types put() expects its own ReadableStream interface;

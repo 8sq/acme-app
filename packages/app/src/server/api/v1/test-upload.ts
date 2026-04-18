@@ -29,7 +29,7 @@ export default testUpload
           : urlFor(bucket, context.env, TEST_KEY);
     }
 
-    const uploadedAtRaw = object?.metadata.uploadedAt;
+    const uploadedAtRaw = object?.metadata["uploaded-at"];
     const parsed = uploadedAtRaw ? Number(uploadedAtRaw) : Number.NaN;
     const uploadedAt = Number.isFinite(parsed) ? parsed : null;
     return context.json({ exists, bucket, url, uploadedAt });

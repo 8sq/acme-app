@@ -10,6 +10,12 @@ export interface StorageObject {
   cacheControl: string | undefined;
   /** Byte length of `body`. Null when the backend doesn't expose it. */
   size: number | null;
+  /**
+   * Custom metadata. Keys are HTTP-header-style: lowercase letters,
+   * digits, and `-`, starting with a letter or digit. S3 case-folds
+   * `x-amz-meta-*` headers in transit, so we enforce the contract on
+   * write across every backend (see `validateMetadataKeys`).
+   */
   metadata: Record<string, string>;
 }
 
@@ -23,6 +29,14 @@ export interface DriverOptions {
 export interface StoragePutOptions {
   contentType: string;
   cacheControl?: string;
+  /**
+   * Custom metadata. Keys must match `/^[a-z0-9][a-z0-9-]*$/` —
+   * lowercase letters, digits, and `-`, starting with a letter or
+   * digit. S3 case-folds `x-amz-meta-*` headers in transit and
+   * Headers iteration always yields lowercase, so storing mixed case
+   * doesn't round-trip reliably; drivers throw on invalid keys instead
+   * of silently normalising.
+   */
   metadata?: Record<string, string>;
   /**
    * Expected byte length of the body. Drivers verify the actual byte count
@@ -127,4 +141,24 @@ export function validatingStream(
   });
 
   return body.pipeThrough(transform);
+}
+
+const METADATA_KEY_RE = /^[a-z0-9][a-z0-9-]*$/u;
+
+/**
+ * Throws on any metadata key that wouldn't survive a round-trip through
+ * S3's `x-amz-meta-*` headers. Called by every driver's `put()` so the
+ * contract is enforced at the write site, not discovered later by a
+ * caller wondering why `uploadedAt` came back as `uploadedat`.
+ */
+export function validateMetadataKeys(metadata: Record<string, string>): void {
+  for (const key of Object.keys(metadata)) {
+    if (!METADATA_KEY_RE.test(key)) {
+      throw new Error(
+        `invalid metadata key: ${JSON.stringify(key)} ` +
+          "(must match /^[a-z0-9][a-z0-9-]*$/ — lowercase letters, " +
+          "digits, hyphens; starting with letter or digit)",
+      );
+    }
+  }
 }
