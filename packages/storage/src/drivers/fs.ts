@@ -172,8 +172,14 @@ export class FsDriver implements StorageDriver {
     try {
       await access(this.path(key));
       return true;
-    } catch {
-      return false;
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code === "ENOENT") {
+        return false;
+      }
+      // EACCES, EIO, etc. must surface — silently returning false would
+      // mask permission/disk failures (health probes would pass on a
+      // broken volume).
+      throw err;
     }
   }
 }

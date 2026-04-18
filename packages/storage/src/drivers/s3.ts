@@ -118,6 +118,16 @@ export class S3Driver implements StorageDriver {
 
   async has(key: string): Promise<boolean> {
     const response = await this.client.fetch(this.url(key), { method: "HEAD" });
-    return response.ok;
+    if (response.status === 404) {
+      return false;
+    }
+
+    if (response.ok) {
+      return true;
+    }
+
+    // 403 / 5xx / auth failures must surface — silently returning false
+    // would mask outages (health probes would pass on broken S3).
+    throw new Error(`S3 HEAD failed: ${response.status}`);
   }
 }
