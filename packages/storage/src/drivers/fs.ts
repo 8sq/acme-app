@@ -72,6 +72,42 @@ async function readHeader(
 }
 
 /**
+ * Writes `[lenBytes][headerBytes][body]` to `tmpPath` atomically (caller
+ * renames on success / rms on failure). Attaches the writeStream's error
+ * listener in the same tick the stream is created so open()/early-write
+ * failures (EACCES, EROFS, ENOSPC) propagate as a Promise rejection
+ * instead of an unhandled stream error.
+ */
+async function writeAtomic(
+  tmpPath: string,
+  prefix: Buffer,
+  body: ReadableStream<Uint8Array> | Uint8Array,
+): Promise<void> {
+  const writeStream = createWriteStream(tmpPath);
+  const writeFailed = new Promise<never>((_resolve, reject) => {
+    writeStream.once("error", reject);
+  });
+
+  writeStream.write(prefix);
+
+  if (body instanceof Uint8Array) {
+    const ended = new Promise<void>((resolve) => {
+      writeStream.once("finish", () => {
+        resolve();
+      });
+      writeStream.end(body);
+    });
+    await Promise.race([ended, writeFailed]);
+    return;
+  }
+
+  // Cast bridges the global ReadableStream to node:stream/web's variant
+  // expected by Readable.fromWeb.
+  const source = Readable.fromWeb(body as never);
+  await Promise.race([pipeline(source, writeStream), writeFailed]);
+}
+
+/**
  * Local filesystem driver. Each object is a single file:
  *
  *   [4 bytes: BE uint32 = header JSON length]
@@ -173,25 +209,9 @@ export class FsDriver implements StorageDriver {
     lenBytes.writeUInt32BE(headerBytes.length, 0);
 
     try {
-      const writeStream = createWriteStream(tmpPath);
-      writeStream.write(Buffer.concat([lenBytes, headerBytes]));
-
       const verified = validatingStream(body, sizeHint);
-      if (verified instanceof Uint8Array) {
-        await new Promise<void>((resolve, reject) => {
-          writeStream.once("finish", () => {
-            resolve();
-          });
-          writeStream.once("error", reject);
-          writeStream.end(verified);
-        });
-      } else {
-        // Cast bridges the global ReadableStream to node:stream/web's variant
-        // expected by Readable.fromWeb.
-        const source = Readable.fromWeb(verified as never);
-        await pipeline(source, writeStream);
-      }
-
+      const prefix = Buffer.concat([lenBytes, headerBytes]);
+      await writeAtomic(tmpPath, prefix, verified);
       await rename(tmpPath, filePath);
     } catch (err) {
       await rm(tmpPath, { force: true });
