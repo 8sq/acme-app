@@ -7,6 +7,7 @@ import {
   type StoragePutOptions,
 } from "../driver";
 import type { S3Credentials } from "../types";
+import { encodeKeyPath } from "../url";
 
 const META_PREFIX = "x-amz-meta-";
 
@@ -32,7 +33,10 @@ export class S3Driver implements StorageDriver {
   }
 
   private url(key: string): string {
-    return new URL(`/${this.bucket}/${key}`, this.endpoint).toString();
+    return new URL(
+      `/${this.bucket}/${encodeKeyPath(key)}`,
+      this.endpoint,
+    ).toString();
   }
 
   async get(key: string): Promise<StorageObject | null> {

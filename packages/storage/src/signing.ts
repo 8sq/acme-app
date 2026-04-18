@@ -1,5 +1,6 @@
 import { HTTPException } from "hono/http-exception";
 import type { BucketMap, S3Credentials, S3Fn, SigningKeyFn } from "./types";
+import { encodeKeyPath } from "./url";
 
 async function hmacSign(data: string, secret: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -46,7 +47,7 @@ async function s3Presign(
   }
 
   const { AwsClient } = await import("aws4fetch");
-  const url = new URL(`/${s3BucketName}/${key}`, creds.endpoint);
+  const url = new URL(`/${s3BucketName}/${encodeKeyPath(key)}`, creds.endpoint);
   url.searchParams.set("X-Amz-Expires", String(ttlSeconds));
 
   const client = new AwsClient({
@@ -111,14 +112,17 @@ export function createPresignUrl<TEnv, TBucket extends string>(
 
     const directUrl = bucketConfig[bucket].baseUrl(env);
     if (directUrl) {
-      return `${directUrl.replace(/\/$/u, "")}/${resolved}`;
+      return `${directUrl.replace(/\/$/u, "")}/${encodeKeyPath(resolved)}`;
     }
 
     const sigKey = signingKey(env);
     if (sigKey) {
       const expires = Math.floor(Date.now() / 1000) + ttlSeconds;
+      // Token signs the raw key; the verifier reads c.req.param("key")
+      // which Hono URL-decodes, so HMAC inputs match end-to-end.
       const token = await hmacSign(`${bucket}:${key}:${expires}`, sigKey);
-      return `/media/${bucket}/${key}?expires=${expires}&token=${token}`;
+      const path = encodeKeyPath(key);
+      return `/media/${bucket}/${path}?expires=${expires}&token=${token}`;
     }
 
     const s3Creds = s3(env);

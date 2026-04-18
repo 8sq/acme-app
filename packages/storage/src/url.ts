@@ -1,5 +1,18 @@
 import type { BucketMap } from "./types";
 
+/**
+ * Percent-encodes each path segment of a storage key. `/` is preserved
+ * as the separator (R2/S3/the proxy route all treat `/` as a literal in
+ * keys). Required for any key that may contain spaces, `?`, `#`, or
+ * non-ASCII — otherwise the URL parser truncates or misinterprets it.
+ */
+export function encodeKeyPath(key: string): string {
+  return key
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+}
+
 export function createUrlUtils<TEnv, TBucket extends string>(
   bucketConfig: BucketMap<TEnv, TBucket>,
 ) {
@@ -13,9 +26,10 @@ export function createUrlUtils<TEnv, TBucket extends string>(
   function urlFor(bucket: TBucket, env: TEnv, key: string): string {
     const base = bucketConfig[bucket].baseUrl(env);
     if (base) {
-      return `${base.replace(/\/$/u, "")}/${storageKey(bucket, env, key)}`;
+      const path = encodeKeyPath(storageKey(bucket, env, key));
+      return `${base.replace(/\/$/u, "")}/${path}`;
     }
-    return `/media/${bucket}/${key}`;
+    return `/media/${bucket}/${encodeKeyPath(key)}`;
   }
 
   return { storageKey, urlFor };
