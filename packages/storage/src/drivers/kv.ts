@@ -10,12 +10,11 @@ import {
 } from "../driver";
 
 // 20 MiB cap (KV's hard ceiling is 25). Headroom for the worker heap,
-// and a signal that larger blobs belong on R2/S3 — KV is the fallback.
+// and a signal that larger blobs belong on R2/S3; KV is the fallback.
 const KV_BUFFER_LIMIT = 20 * 1024 * 1024;
 
-// KV has no native HTTP metadata, so contentType/cacheControl/size travel
-// inside the single 1024-byte metadata blob alongside user metadata. The
-// proxy serves cacheControl from there; direct access to KV is not exposed.
+// KV has no native HTTP metadata. contentType/cacheControl/size travel
+// inside the 1024-byte metadata blob alongside user metadata.
 interface KvStoredMetadata {
   contentType: string;
   cacheControl?: string;
@@ -45,7 +44,7 @@ export class KvDriver implements StorageDriver {
     }
 
     if (!result.metadata) {
-      // Legacy/garbage object with no metadata — drain so KV releases
+      // Legacy/garbage object with no metadata; drain so KV releases
       // the connection rather than leak it.
       await result.value.cancel();
       return null;

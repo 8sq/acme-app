@@ -14,7 +14,9 @@ function matchContentType(type: string, pattern: string): boolean {
   return type === pattern;
 }
 
-/** UUID v7 key (time-sortable) with the original file extension preserved. */
+/**
+ * UUID v7 key (time-sortable) with the original file extension preserved.
+ */
 export function generateKey(filename: string): string {
   const dot = filename.lastIndexOf(".");
   const rawExt = dot > 0 ? filename.slice(dot) : "";
@@ -28,7 +30,9 @@ export interface StoreFileOptions<
   key?: string;
   maxBytes?: number;
   allowedTypes?: string[];
-  /** Same kebab-case contract as `StoragePutOptions.metadata`. */
+  /**
+   * Same kebab-case contract as `StoragePutOptions.metadata`.
+   */
   metadata?: ValidatedMetadata<TMeta>;
 }
 

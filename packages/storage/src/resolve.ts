@@ -19,7 +19,9 @@ import type {
   UserEnv,
 } from "./types";
 
-/** R2 binding — Cloudflare Workers only, requires billing. */
+/**
+ * R2 binding. Cloudflare Workers only, requires billing.
+ */
 function tryR2<TEnv>(
   config: BucketConfig<TEnv>,
   env: TEnv,
@@ -37,7 +39,9 @@ function tryR2<TEnv>(
   return new R2Driver(binding, driverOptions);
 }
 
-/** KV fallback — Cloudflare Workers only, free tier. */
+/**
+ * KV fallback. Cloudflare Workers only, free tier.
+ */
 function tryKV(
   bucket: string,
   kvBindingName: string | undefined,
@@ -65,7 +69,9 @@ function tryKV(
   );
 }
 
-/** S3-compatible storage — any runtime. */
+/**
+ * S3-compatible storage. Works in any runtime.
+ */
 function tryS3<TEnv>(
   config: BucketConfig<TEnv>,
   env: TEnv,
@@ -79,8 +85,12 @@ function tryS3<TEnv>(
   return new S3Driver(creds, config.s3BucketName(env), driverOptions);
 }
 
-/** Local filesystem — Node.js only. Dynamic import keeps node:fs out of the
- *  cloudflare bundle (paired with cloudflareExternals in package.json). */
+/**
+ * Local filesystem driver. Node.js only.
+ *
+ * Dynamic import keeps `node:fs` out of the Cloudflare bundle (paired
+ * with `cloudflareExternals` in package.json).
+ */
 async function tryFS(
   bucket: string,
   driverOptions: DriverOptions,

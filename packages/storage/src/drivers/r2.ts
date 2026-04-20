@@ -8,7 +8,9 @@ import {
   type StoragePutOptions,
 } from "../driver";
 
-/** R2 binding driver: customMetadata + httpMetadata are stored natively. */
+/**
+ * R2 binding driver: customMetadata + httpMetadata are stored natively.
+ */
 export class R2Driver implements StorageDriver {
   readonly name = "r2" as const;
 

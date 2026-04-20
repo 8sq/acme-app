@@ -6,9 +6,13 @@
 export interface StorageObject {
   body: ReadableStream<Uint8Array>;
   contentType: string;
-  /** Stored HTTP cache-control. Absent when the put did not set it. */
+  /**
+   * Stored HTTP cache-control. Absent when the put did not set it.
+   */
   cacheControl: string | undefined;
-  /** Byte length of `body`. Null when the backend doesn't expose it. */
+  /**
+   * Byte length of `body`. Null when the backend doesn't expose it.
+   */
   size: number | null;
   /**
    * Custom metadata. Keys are HTTP-header-style: lowercase letters,
@@ -19,10 +23,14 @@ export interface StorageObject {
   metadata: Record<string, string>;
 }
 
-/** Driver-construction options shared by every backend. */
+/**
+ * Driver-construction options shared by every backend.
+ */
 export interface DriverOptions {
-  /** Used when a put() omits cacheControl. Driver writes it to its native
-   *  http-metadata field so direct/presigned access serves it too. */
+  /**
+   * Used when a put() omits cacheControl. Driver writes it to its
+   * native http-metadata field so direct/presigned access serves it.
+   */
   defaultCacheControl?: string;
 }
 
@@ -59,7 +67,9 @@ type LowerLetter =
   | "z";
 type Digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 
-/** Compile-time check matching `/^[a-z0-9][a-z0-9-]*$/`. */
+/**
+ * Compile-time check matching `/^[a-z0-9][a-z0-9-]*$/`.
+ */
 type KebabKey<TKey extends string> =
   TKey extends `${LowerLetter | Digit}${infer Rest}`
     ? KebabBody<Rest> extends true
@@ -67,7 +77,9 @@ type KebabKey<TKey extends string> =
       : never
     : never;
 
-/** Tail-recursive body check: each subsequent char in `[a-z0-9-]`. */
+/**
+ * Tail-recursive body check: each subsequent char in `[a-z0-9-]`.
+ */
 type KebabBody<TKey extends string> = TKey extends ""
   ? true
   : TKey extends `${LowerLetter | Digit | "-"}${infer Rest}`
@@ -75,13 +87,14 @@ type KebabBody<TKey extends string> = TKey extends ""
     : false;
 
 /**
- * Maps each metadata key through `KebabKey`. Invalid keys turn the
- * value type into a branded error-string literal — assigning a normal
- * `string` to it fails the compile with the message visible in the TS
- * error. Catches uppercase, leading hyphens, underscores, embedded
- * uppercase, non-ASCII, and empty keys when keys are literal in an
- * object literal. Dynamic / spread keys widen to `Record<string,
- * string>` and are caught by `validateMetadataKeys` at runtime.
+ * Maps each metadata key through `KebabKey`. Invalid keys become a
+ * branded error-string literal that breaks `string` assignment.
+ *
+ * Catches uppercase, leading hyphens, underscores, non-ASCII, and
+ * empty keys when keys are literal in an object literal.
+ *
+ * Dynamic / spread keys widen to `Record<string, string>` and are
+ * caught by `validateMetadataKeys` at runtime.
  */
 export type ValidatedMetadata<TMeta> = {
   [TKey in keyof TMeta]: TKey extends string
@@ -97,18 +110,21 @@ export interface StoragePutOptions<
   contentType: string;
   cacheControl?: string;
   /**
-   * Custom metadata. Keys must match `/^[a-z0-9][a-z0-9-]*$/` —
-   * lowercase letters, digits, and `-`, starting with a letter or
-   * digit. Literal keys are checked at compile time via
-   * `ValidatedMetadata`; dynamic keys are caught at runtime by
-   * `validateMetadataKeys`. S3 case-folds `x-amz-meta-*` headers in
-   * transit so this contract holds across every backend.
+   * Custom metadata. Keys must match `/^[a-z0-9][a-z0-9-]*$/`.
+   *
+   * Literal keys are checked at compile time via `ValidatedMetadata`;
+   * dynamic keys are caught at runtime by `validateMetadataKeys`.
+   *
+   * S3 case-folds `x-amz-meta-*` headers in transit, so this contract
+   * holds across every backend.
    */
   metadata?: ValidatedMetadata<TMeta>;
   /**
-   * Expected byte length of the body. Drivers verify the actual byte count
-   * matches and abort the put on mismatch. Untrusted callers (e.g. raw
-   * Content-Length headers) are safe to pass — verification is enforced.
+   * Expected byte length of the body. Drivers verify the actual byte
+   * count matches and abort the put on mismatch.
+   *
+   * Untrusted callers (raw Content-Length headers) are safe to pass:
+   * verification is enforced.
    */
   sizeHint?: number;
 }
@@ -163,7 +179,9 @@ export function prefixDriver(
   };
 }
 
-/** Public/private bucket → standard Cache-Control string. */
+/**
+ * Public/private bucket -> standard Cache-Control string.
+ */
 export function cacheControlFor(isPublic: boolean): string {
   return isPublic ? "public, max-age=31536000, immutable" : "private, no-store";
 }
@@ -209,12 +227,11 @@ export async function bufferBody(
 }
 
 /**
- * Returns the body wrapped in a counting transform that errors when the
- * actual byte count differs from `sizeHint`. Stream errors mid-transfer
- * propagate to the underlying put, which is atomic for R2/S3/KV — so a
- * mismatch leaves no object behind. FS handles atomicity via tmp + rename.
+ * Wraps the body in a counting transform that errors if the byte count
+ * differs from `sizeHint`. If no hint is given, body passes through.
  *
- * If no hint is given, the body passes through unchanged.
+ * Stream errors mid-transfer propagate to the underlying put. R2/S3/KV
+ * puts are atomic; FS handles atomicity via tmp + rename.
  */
 export function validatingStream(
   body: ReadableStream<Uint8Array> | Uint8Array,
@@ -262,16 +279,17 @@ export const METADATA_KEY_RE = /^[a-z0-9][a-z0-9-]*$/u;
 
 /**
  * Throws on any metadata key that wouldn't survive a round-trip through
- * S3's `x-amz-meta-*` headers. Called by every driver's `put()` so the
- * contract is enforced at the write site, not discovered later by a
- * caller wondering why `uploadedAt` came back as `uploadedat`.
+ * S3's `x-amz-meta-*` headers (which case-fold).
+ *
+ * Enforced at write-site by every driver's `put()`, not discovered
+ * later when `uploadedAt` comes back as `uploadedat`.
  */
 export function validateMetadataKeys(metadata: Record<string, string>): void {
   for (const key of Object.keys(metadata)) {
     if (!METADATA_KEY_RE.test(key)) {
       throw new Error(
         `invalid metadata key: ${JSON.stringify(key)} ` +
-          "(must match /^[a-z0-9][a-z0-9-]*$/ — lowercase letters, " +
+          "(must match /^[a-z0-9][a-z0-9-]*$/; lowercase letters, " +
           "digits, hyphens; starting with letter or digit)",
       );
     }

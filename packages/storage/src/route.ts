@@ -16,7 +16,9 @@ type VerifyFn = (
   signingKey: string,
 ) => Promise<void>;
 
-/** True when the proxy must refuse to serve because a better access path exists. */
+/**
+ * True when the proxy must refuse to serve because a better access path exists.
+ */
 function isProxyDisabled<TEnv>(
   config: BucketConfig<TEnv>,
   env: TEnv,

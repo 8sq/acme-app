@@ -13,7 +13,9 @@ import { encodeKeyPath } from "../url";
 
 const META_PREFIX = "x-amz-meta-";
 
-/** S3-compatible driver via aws4fetch SigV4. Metadata as x-amz-meta-* headers. */
+/**
+ * S3-compatible driver via aws4fetch SigV4. Metadata as x-amz-meta-* headers.
+ */
 export class S3Driver implements StorageDriver {
   readonly name = "s3" as const;
 
@@ -70,7 +72,7 @@ export class S3Driver implements StorageDriver {
 
     // Strict parse: Number() would let NaN, decimals, negatives, and
     // empty strings through and we'd later ship Content-Length: NaN
-    // (or wrong byte counts). Anything malformed → null → proxy omits
+    // (or wrong byte counts). Anything malformed -> null -> proxy omits
     // the header and falls back to chunked transfer.
     const lenRaw = headers.get("content-length");
     const lenParsed = lenRaw === null ? Number.NaN : Number(lenRaw);
@@ -140,7 +142,7 @@ export class S3Driver implements StorageDriver {
     });
     await response.body?.cancel();
 
-    // 404 is fine — already gone is the desired end-state.
+    // 404 is fine: already gone is the desired end-state.
     if (!response.ok && response.status !== 404) {
       throw new StorageError({
         driver: this.name,
@@ -165,7 +167,7 @@ export class S3Driver implements StorageDriver {
       return true;
     }
 
-    // 403 / 5xx / auth failures must surface — silently returning false
+    // 403 / 5xx / auth failures must surface; silently returning false
     // would mask outages (health probes would pass on broken S3).
     throw new StorageError({
       driver: this.name,

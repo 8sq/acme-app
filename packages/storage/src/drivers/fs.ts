@@ -39,9 +39,9 @@ interface ParsedHeader {
 
 /**
  * Reads the length-prefixed JSON header from an open FileHandle and
- * verifies that the file is long enough to contain the data section
- * the offsets imply. Throws on any truncation or corruption — the
- * caller is responsible for closing the FileHandle on error.
+ * verifies the file is long enough for the data section.
+ *
+ * Throws on truncation or corruption. Caller closes the FileHandle.
  */
 async function readHeader(
   fd: import("node:fs/promises").FileHandle,
@@ -84,11 +84,12 @@ async function readHeader(
 }
 
 /**
- * Writes `[lenBytes][headerBytes][body]` to `tmpPath` atomically (caller
- * renames on success / rms on failure). Attaches the writeStream's error
- * listener in the same tick the stream is created so open()/early-write
- * failures (EACCES, EROFS, ENOSPC) propagate as a Promise rejection
- * instead of an unhandled stream error.
+ * Writes `[lenBytes][headerBytes][body]` to `tmpPath` atomically.
+ * Caller renames on success / rms on failure.
+ *
+ * The writeStream error listener attaches in the same tick the stream
+ * is created so open / early-write failures (EACCES, EROFS, ENOSPC)
+ * propagate as a Promise rejection, not an unhandled stream error.
  */
 async function writeAtomic(
   tmpPath: string,
@@ -126,12 +127,14 @@ async function writeAtomic(
  *   [header JSON]
  *   [data bytes]
  *
- * Concurrent same-key puts are safe: each put writes to a unique tmp file
- * (`${path}.${uuid}.tmp`) and renames atomically into place. Last writer
- * wins, but the file always describes its own data — header and bytes
- * cannot drift out of sync. Concurrent readers keep the previous inode
- * via Unix file semantics; the FileHandle handed to createReadStream
- * pins it for the whole stream lifetime.
+ * Concurrent same-key puts are safe: each put writes to a unique tmp
+ * file (`${path}.${uuid}.tmp`) and renames atomically into place.
+ *
+ * Last writer wins, but the file always describes its own data: header
+ * and bytes cannot drift out of sync.
+ *
+ * Concurrent readers keep the previous inode via Unix file semantics;
+ * the FileHandle pins it for the whole stream lifetime.
  */
 export class FsDriver implements StorageDriver {
   readonly name = "fs" as const;
@@ -146,10 +149,11 @@ export class FsDriver implements StorageDriver {
   }
 
   /**
-   * Resolves a user-supplied key to an absolute filesystem path, rejecting
-   * any key that would escape `base` (via `..`, an absolute segment, or a
-   * null byte). Single chokepoint for path-traversal defence — every
-   * public method routes through here.
+   * Resolves a user-supplied key to an absolute path, rejecting any key
+   * that escapes `base` (via `..`, absolute segment, or null byte).
+   *
+   * Single chokepoint for path-traversal defence; every public method
+   * routes through here.
    */
   private path(key: string): string {
     if (key.includes("\0")) {
@@ -245,9 +249,8 @@ export class FsDriver implements StorageDriver {
       if ((err as NodeJS.ErrnoException).code === "ENOENT") {
         return false;
       }
-      // EACCES, EIO, etc. must surface — silently returning false would
-      // mask permission/disk failures (health probes would pass on a
-      // broken volume).
+      // EACCES, EIO, etc. must surface; silently returning false would
+      // mask permission/disk failures (health probes would pass).
       throw err;
     }
   }

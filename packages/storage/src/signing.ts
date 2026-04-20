@@ -36,7 +36,9 @@ function timingSafeEqual(expected: string, actual: string): boolean {
   return diff === 0;
 }
 
-/** Generates an S3-compatible presigned GET URL using AWS SigV4. Returns null if S3 creds are missing. */
+/**
+ * Generates an S3-compatible presigned GET URL using AWS SigV4. Returns null if S3 creds are missing.
+ */
 async function s3Presign(
   s3BucketName: string,
   creds: S3Credentials | undefined,
