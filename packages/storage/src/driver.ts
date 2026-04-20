@@ -114,6 +114,7 @@ export interface StoragePutOptions<
 }
 
 export interface StorageDriver {
+  readonly name: string;
   get(key: string): Promise<StorageObject | null>;
   put<TMeta extends Record<string, string>>(
     key: string,
@@ -148,6 +149,7 @@ export function prefixDriver(
   const prefixed = (key: string) => `${prefix}${KEY_SEPARATOR}${key}`;
 
   return {
+    name: inner.name,
     get: (key) => inner.get(prefixed(key)),
     async put<TMeta extends Record<string, string>>(
       key: string,

@@ -9,4 +9,6 @@ export type {
   StoragePutOptions,
 } from "./types";
 export { cacheControlFor, KEY_SEPARATOR } from "./driver";
+export { StorageError, type StorageOp } from "./error";
 export { createStorageKit } from "./kit";
+export { withStorageErrors } from "./wrap-driver";

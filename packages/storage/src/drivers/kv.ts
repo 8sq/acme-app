@@ -27,6 +27,8 @@ interface KvStoredMetadata {
  * KV binding driver: metadata stored via the binding's native metadata field.
  */
 export class KvDriver implements StorageDriver {
+  readonly name = "kv" as const;
+
   constructor(
     private readonly binding: KVNamespace,
     private readonly options: DriverOptions = {},
@@ -68,9 +70,9 @@ export class KvDriver implements StorageDriver {
       sizeHint,
       contentType,
       cacheControl = this.options.defaultCacheControl,
-      metadata = {},
+      metadata: user = {},
     } = options;
-    validateMetadataKeys(metadata);
+    validateMetadataKeys(user);
 
     // KV needs `size` in metadata, set at put-time. With a sizeHint we can
     // stream: the validating transform aborts the put on mismatch (KV puts
@@ -83,15 +85,10 @@ export class KvDriver implements StorageDriver {
     const size =
       sizeHint ?? (value instanceof Uint8Array ? value.byteLength : 0);
 
-    const kvMetadata: KvStoredMetadata = {
-      contentType,
-      cacheControl,
-      size,
-      user: metadata,
-    };
+    const metadata = { contentType, cacheControl, size, user };
 
     // Cast bridges global ReadableStream to workers-types' variant.
-    await this.binding.put(key, value as Uint8Array, { metadata: kvMetadata });
+    await this.binding.put(key, value as Uint8Array, { metadata });
   }
 
   async delete(key: string): Promise<void> {

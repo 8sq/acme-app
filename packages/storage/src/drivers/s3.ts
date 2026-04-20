@@ -7,6 +7,7 @@ import {
   type StorageObject,
   type StoragePutOptions,
 } from "../driver";
+import { StorageError } from "../error";
 import type { S3Credentials } from "../types";
 import { encodeKeyPath } from "../url";
 
@@ -14,6 +15,8 @@ const META_PREFIX = "x-amz-meta-";
 
 /** S3-compatible driver via aws4fetch SigV4. Metadata as x-amz-meta-* headers. */
 export class S3Driver implements StorageDriver {
+  readonly name = "s3" as const;
+
   private readonly client: AwsClient;
   private readonly endpoint: string;
   private readonly bucket: string;
@@ -49,7 +52,12 @@ export class S3Driver implements StorageDriver {
     if (!response.ok || !response.body) {
       // Drain the body so undici can release the socket back to the pool.
       await response.body?.cancel();
-      throw new Error(`S3 GET failed: ${response.status}`);
+      throw new StorageError({
+        driver: this.name,
+        op: "get",
+        key,
+        status: response.status,
+      });
     }
 
     const headers = response.headers;
@@ -117,7 +125,12 @@ export class S3Driver implements StorageDriver {
     await response.body?.cancel();
 
     if (!response.ok) {
-      throw new Error(`S3 PUT failed: ${response.status}`);
+      throw new StorageError({
+        driver: this.name,
+        op: "put",
+        key,
+        status: response.status,
+      });
     }
   }
 
@@ -129,7 +142,12 @@ export class S3Driver implements StorageDriver {
 
     // 404 is fine — already gone is the desired end-state.
     if (!response.ok && response.status !== 404) {
-      throw new Error(`S3 DELETE failed: ${response.status}`);
+      throw new StorageError({
+        driver: this.name,
+        op: "delete",
+        key,
+        status: response.status,
+      });
     }
   }
 
@@ -149,6 +167,11 @@ export class S3Driver implements StorageDriver {
 
     // 403 / 5xx / auth failures must surface — silently returning false
     // would mask outages (health probes would pass on broken S3).
-    throw new Error(`S3 HEAD failed: ${response.status}`);
+    throw new StorageError({
+      driver: this.name,
+      op: "has",
+      key,
+      status: response.status,
+    });
   }
 }

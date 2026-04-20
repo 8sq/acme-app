@@ -134,6 +134,8 @@ async function writeAtomic(
  * pins it for the whole stream lifetime.
  */
 export class FsDriver implements StorageDriver {
+  readonly name = "fs" as const;
+
   private readonly baseAbs: string;
 
   constructor(

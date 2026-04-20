@@ -10,6 +10,8 @@ import {
 
 /** R2 binding driver: customMetadata + httpMetadata are stored natively. */
 export class R2Driver implements StorageDriver {
+  readonly name = "r2" as const;
+
   constructor(
     private readonly binding: R2Bucket,
     private readonly options: DriverOptions = {},
