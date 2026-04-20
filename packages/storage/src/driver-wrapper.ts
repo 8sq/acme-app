@@ -6,9 +6,10 @@ import type {
 } from "./driver";
 import { StorageError, type StorageOp } from "./error";
 
-// Hard cap on storage keys. Matches S3's spec'd 1024-char object-key
-// limit; tightest bound that holds across R2 and S3.
-const KEY_MAX_LENGTH = 1024;
+// Hard cap on storage keys, in UTF-8 bytes (S3's spec is bytes, not
+// chars). Tightest bound that holds across R2 and S3.
+const KEY_MAX_BYTES = 1024;
+const encoder = new TextEncoder();
 
 // Matches keys containing "." or ".." as a /-delimited segment.
 // Standalone dots in segment middle (e.g. ".htaccess", "foo.bar")
@@ -58,10 +59,11 @@ export class DriverWrapper implements StorageDriver {
     key: string,
     fn: () => Promise<TResult>,
   ): Promise<TResult> {
-    if (key.length > KEY_MAX_LENGTH) {
+    const byteLength = encoder.encode(key).byteLength;
+    if (byteLength > KEY_MAX_BYTES) {
       const message =
         `${this.name} ${op}: ` +
-        `key length ${key.length} exceeds ${KEY_MAX_LENGTH}`;
+        `key is ${byteLength} bytes, exceeds ${KEY_MAX_BYTES}`;
       throw new StorageError({ driver: this.name, op, key }, message);
     }
 
