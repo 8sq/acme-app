@@ -1,3 +1,4 @@
+import { KEY_SEPARATOR } from "./driver";
 import type { BucketMap } from "./types";
 
 /**
@@ -24,7 +25,7 @@ export function createUrlUtils<TEnv, TBucket extends string>(
    */
   function storageKey(bucket: TBucket, env: TEnv, key: string): string {
     const prefix = bucketConfig[bucket].keyPrefix(env);
-    return prefix ? `${prefix}:${key}` : key;
+    return prefix ? `${prefix}${KEY_SEPARATOR}${key}` : key;
   }
 
   /**
