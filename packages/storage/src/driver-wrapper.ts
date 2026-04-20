@@ -10,6 +10,11 @@ import { StorageError, type StorageOp } from "./error";
 // limit; tightest bound that holds across R2 and S3.
 const KEY_MAX_LENGTH = 1024;
 
+// Matches keys containing "." or ".." as a /-delimited segment.
+// Standalone dots in segment middle (e.g. ".htaccess", "foo.bar")
+// pass through.
+const TRAVERSAL_SEGMENT_RE = /(?:^|\/)\.{1,2}(?:$|\/)/u;
+
 /**
  * Wraps a `StorageDriver` with cross-cutting concerns at the call boundary:
  * key length validation and uniform `StorageError` rewrapping.
@@ -57,6 +62,13 @@ export class DriverWrapper implements StorageDriver {
       const message =
         `${this.name} ${op}: ` +
         `key length ${key.length} exceeds ${KEY_MAX_LENGTH}`;
+      throw new StorageError({ driver: this.name, op, key }, message);
+    }
+
+    if (TRAVERSAL_SEGMENT_RE.test(key)) {
+      const message =
+        `${this.name} ${op}: ` +
+        `key contains "." or ".." segment: ${JSON.stringify(key)}`;
       throw new StorageError({ driver: this.name, op, key }, message);
     }
 
