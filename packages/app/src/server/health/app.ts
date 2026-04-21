@@ -11,8 +11,8 @@ async function checkDatabase(env: AppEnv["Bindings"]) {
   try {
     const db = await resolveDatabase(env);
     await db.run(sql`SELECT 1`);
-  } catch {
-    throw new HTTPException(503, { message: "db unreachable" });
+  } catch (cause) {
+    throw new HTTPException(503, { message: "db unreachable", cause });
   }
 }
 
@@ -21,8 +21,8 @@ async function checkCache(env: AppEnv["Bindings"]) {
     const cache = await resolveCache(env);
     await cache.set("__health__", "1", 60);
     await cache.get("__health__");
-  } catch {
-    throw new HTTPException(503, { message: "cache unreachable" });
+  } catch (cause) {
+    throw new HTTPException(503, { message: "cache unreachable", cause });
   }
 }
 
@@ -32,8 +32,8 @@ async function checkStorage(env: AppEnv["Bindings"]) {
     await Promise.all(
       Object.values(buckets).map((bucket) => bucket.has("_health")),
     );
-  } catch {
-    throw new HTTPException(503, { message: "storage unreachable" });
+  } catch (cause) {
+    throw new HTTPException(503, { message: "storage unreachable", cause });
   }
 }
 
