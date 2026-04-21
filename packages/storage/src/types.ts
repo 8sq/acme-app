@@ -33,7 +33,9 @@ interface BucketConfigBase<TEnv = UserEnv> {
 
 /**
  * Public buckets allow anonymous reads. They may declare a `baseUrl`
- * for direct CDN access; the proxy then redirects clients there.
+ * so `urlFor()` returns a direct CDN URL instead of the proxy path.
+ * The proxy then refuses requests for this bucket with 404 to keep
+ * clients off the worker hot path.
  */
 export interface PublicBucketConfig<
   TEnv = UserEnv,
